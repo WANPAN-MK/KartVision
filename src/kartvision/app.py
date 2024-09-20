@@ -12,4 +12,4 @@ app = Flask(__name__)
 
 @app.route("/")
 def results():
-    return render_template("results.html",data=data)
+    return render_template("result.html",data=data)
