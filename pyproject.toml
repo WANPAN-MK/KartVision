@@ -1,0 +1,28 @@
+[project]
+name = "kartvision"
+version = "0.1.0"
+description = "Add your description here"
+authors = [{ name = "わんぱん", email = "zhiyingxiqi@gmail.com" }]
+dependencies = [
+    "pyautogui>=0.9.54",
+    "google-cloud-vision>=3.7.4",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kartvision"]
+
+[tool.rye.scripts]
+kart = { cmd = "python src/kartvision/main.py" }
