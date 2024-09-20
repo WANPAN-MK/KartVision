@@ -6,6 +6,7 @@ authors = [{ name = "わんぱん", email = "zhiyingxiqi@gmail.com" }]
 dependencies = [
     "pyautogui>=0.9.54",
     "google-cloud-vision>=3.7.4",
+    "flask>=3.0.3",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -25,4 +26,4 @@ allow-direct-references = true
 packages = ["src/kartvision"]
 
 [tool.rye.scripts]
-kart = { cmd = "python src/kartvision/main.py" }
+server = { cmd = "flask --app src/kartvision/app.py run" }

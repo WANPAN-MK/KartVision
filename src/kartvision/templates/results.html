@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>マリオカート集計結果</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+        color: #fffcfc;
+        max-width: 280px;
+        margin: 100px;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.512);
+        background-color: rgb(255, 255, 255);
+        top: 10px;
+        right: 10px;
+      }
+      .team-score {
+        margin: 10px 0;
+        padding: 15px;
+        background-color: #000000d8;
+        border: 0.5px solid #ddd;
+        border-radius: 10px;
+        font-size: 70px;
+      }
+      .team-score span {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="results">
+      <!-- スコアがここに挿入されます -->
+      {% for item in data %}
+      <div class="team-score"><span>{{item.team}}: </span> {{item.points}}</div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
