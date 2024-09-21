@@ -6,4 +6,5 @@
 
 - [Rye](https://rye.astral.sh/)をインストール
 - [KartVision](https://github.com/WANPAN01/KartVision)をクローン
-- `rye run kart`を実行
+- `rye sync`を実行
+- `rye run kart`を実行し、サーバーを立てる

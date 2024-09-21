@@ -68,19 +68,14 @@ pygetwindow==0.0.9
     # via pyautogui
 pymsgbox==1.0.9
     # via pyautogui
-pyobjc-core==10.3.1
-    # via pyautogui
-    # via pyobjc-framework-cocoa
-    # via pyobjc-framework-quartz
-pyobjc-framework-cocoa==10.3.1
-    # via pyobjc-framework-quartz
-pyobjc-framework-quartz==10.3.1
-    # via pyautogui
 pyperclip==1.9.0
     # via mouseinfo
 pyrect==0.2.0
     # via pygetwindow
 pyscreeze==1.0.1
+    # via pyautogui
+python3-xlib==0.15
+    # via mouseinfo
     # via pyautogui
 pytweening==1.2.0
     # via pyautogui
@@ -88,8 +83,6 @@ requests==2.32.3
     # via google-api-core
 rsa==4.9
     # via google-auth
-rubicon-objc==0.4.9
-    # via mouseinfo
 urllib3==2.2.3
     # via requests
 werkzeug==3.0.4
