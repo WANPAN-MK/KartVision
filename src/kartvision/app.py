@@ -1,5 +1,12 @@
 import sys
 from flask import render_template, Flask
+from google.cloud import vision
+import imagelib
+
+# regions = [(1520, 204, 2125, 1596)]
+# client = vision.ImageAnnotatorClient()
+imagelib.init()
+imagelib.screenshot()
 
 data = [
     {'team':"A", 'points':65},
@@ -12,4 +19,10 @@ app = Flask(__name__)
 
 @app.route("/")
 def results():
-    return render_template("result.html",data=data)
+    return render_template("result.html", data=data)
+
+@app.route("/history")
+def history():
+    images = imagelib.get_screenshot()
+    return render_template("history.html", images=images)
+
