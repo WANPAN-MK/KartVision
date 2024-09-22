@@ -8,6 +8,7 @@ dependencies = [
     "google-cloud-vision>=3.7.4",
     "flask>=3.0.3",
     "pillow>=10.4.0",
+    "opencv-python>=4.10.0.84",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -27,4 +28,4 @@ allow-direct-references = true
 packages = ["src/kartvision"]
 
 [tool.rye.scripts]
-kart = { cmd = "flask --app src/kartvision/app.py run" }
+kart = { cmd = "python src/kartvision/app.py" }
