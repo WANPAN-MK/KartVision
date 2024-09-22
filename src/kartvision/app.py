@@ -4,9 +4,6 @@ from google.cloud import vision
 import imagelib
 import threading
 
-# 初期化
-imagelib.init()
-
 data = [
     {'team': "A", 'points': 65},
     {'team': "B", 'points': 56},
@@ -25,13 +22,13 @@ def history():
     images = imagelib.get_screenshot()
     return render_template("history.html", images=images)
 
-def start_flag_detection():
-    imagelib.take_screenshot_when_flag_detected()
+def run():
+    imagelib.run()
 
 if __name__ == "__main__":
     # 画像処理スレッドを開始
-    flag_detection_thread = threading.Thread(target=start_flag_detection)
-    flag_detection_thread.daemon = True  # メインプログラム終了時にスレッドも終了
+    flag_detection_thread = threading.Thread(target=run)
+    flag_detection_thread.daemon = True
     flag_detection_thread.start()
 
     # Flaskアプリを実行
