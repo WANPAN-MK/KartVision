@@ -1,11 +1,8 @@
-import pyautogui
-import datetime
-from time import sleep
 import os
-import io
-from typing import List, Tuple
+import pyautogui
 from PIL import Image
-from google.cloud import vision
+from typing import List, Tuple
+import datetime
 
 class Screenshot_Manager():
     def __init__(self) -> None:
@@ -32,46 +29,9 @@ class Screenshot_Manager():
             cropped_image = img.crop(region)
             cropped_image.save("src/kartvision/static/cashe/clip_screenshot.png")
 
-
 def get_screenshot() -> List[str]:
     # ToDo 時間でソート
     directory = "src/kartvision/static/history"
     images = ['history/' + f for f in os.listdir(directory) if f.endswith('.png')]
     print(images)
     return images
-
-def read_image_to_text() -> str:
-    client = vision.ImageAnnotatorClient()
-    with io.open('src/kartvision/static/cashe/clip_screenshot.png', 'rb') as image_file:
-        content = image_file.read()
-    image = vision.Image(content=content)
-    response = client.text_detection(image=image)
-    texts = response.text_annotations
-    return texts[0].description
-    
-def run():
-    # 設定
-    wait_time_before_screenshot = 0.3
-    flag_image = "src/kartvision/static/images/flag_trigger.png"
-    
-    screenshot_manager = Screenshot_Manager()
-    
-    running = True
-    while running:
-        sleep(0.1)
-        print("待機中...")
-        try:
-            location = pyautogui.locateOnScreen(flag_image, confidence=0.7)
-        except pyautogui.ImageNotFoundException:
-            continue
-            
-        if location:
-            print("日本国旗が見つかりました。スクリーンショットを撮る前に待機します...")
-            sleep(wait_time_before_screenshot)
-            screenshot_manager.screenshot()
-            screenshot_manager.clip_screenshot((1520, 204, 2125, 1596))
-            
-            texts = read_image_to_text()
-            print(texts)
-            
-            running = False

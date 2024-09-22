@@ -1,8 +1,11 @@
-import sys
 from flask import render_template, Flask
-from google.cloud import vision
-import imagelib
+import visionapi
 import threading
+import pyautogui
+from time import sleep
+import screenshot
+import image_editor
+
 
 data = [
     {'team': "A", 'points': 65},
@@ -19,11 +22,36 @@ def results():
 
 @app.route("/history")
 def history():
-    images = imagelib.get_screenshot()
+    images = visionapi.get_screenshot()
     return render_template("history.html", images=images)
 
 def run():
-    imagelib.run()
+    # 設定
+    wait_time_before_screenshot = 0.3
+    flag_image = "src/kartvision/static/images/flag_trigger.png"
+    
+    screenshot_manager = screenshot.Screenshot_Manager()
+    
+    running = True
+    while running:
+        sleep(0.1)
+        print("待機中...")
+        try:
+            location = pyautogui.locateOnScreen(flag_image, confidence=0.7)
+        except pyautogui.ImageNotFoundException:
+            continue
+            
+        if location:
+            print("日本国旗が見つかりました。スクリーンショットを撮る前に待機します...")
+            sleep(wait_time_before_screenshot)
+            screenshot_manager.screenshot()
+            screenshot_manager.clip_screenshot((1520, 204, 2125, 1596))
+            image_editor.preprocess_image()
+            
+            texts = visionapi.read_image_to_text()
+            print(texts)
+            
+            running = False
 
 if __name__ == "__main__":
     # 画像処理スレッドを開始
