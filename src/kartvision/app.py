@@ -5,6 +5,7 @@ import pyautogui
 from time import sleep
 import screenshot
 import image_editor
+import analyzer
 
 
 data = [
@@ -47,9 +48,9 @@ def run():
             screenshot_manager.screenshot()
             screenshot_manager.clip_screenshot((1520, 204, 2125, 1596))
             image_editor.preprocess_image()
-            
-            texts = visionapi.read_image_to_text()
-            print(texts)
+            ranking = visionapi.read_result_to_ranking()
+            extextract_tags = analyzer.extract_tags(ranking)
+            print(extextract_tags)
             
             running = False
 
