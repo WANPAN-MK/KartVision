@@ -22,7 +22,7 @@ def results():
 
 @app.route("/history")
 def history():
-    images = visionapi.get_screenshot()
+    images = screenshot.get_screenshot()
     return render_template("history.html", images=images)
 
 def run():
