@@ -6,6 +6,8 @@
 #   features: []
 #   all-features: false
 #   with-sources: false
+#   generate-hashes: false
+#   universal: false
 
 -e file:.
 blinker==1.8.2
@@ -18,8 +20,6 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via flask
-colorama==0.4.6
-    # via click
 flask==3.0.3
     # via kartvision
 google-api-core==2.20.0
@@ -74,6 +74,14 @@ pygetwindow==0.0.9
     # via pyautogui
 pymsgbox==1.0.9
     # via pyautogui
+pyobjc-core==10.3.1
+    # via pyautogui
+    # via pyobjc-framework-cocoa
+    # via pyobjc-framework-quartz
+pyobjc-framework-cocoa==10.3.1
+    # via pyobjc-framework-quartz
+pyobjc-framework-quartz==10.3.1
+    # via pyautogui
 pyperclip==1.9.0
     # via mouseinfo
 pyrect==0.2.0
@@ -86,6 +94,8 @@ requests==2.32.3
     # via google-api-core
 rsa==4.9
     # via google-auth
+rubicon-objc==0.4.9
+    # via mouseinfo
 urllib3==2.2.3
     # via requests
 werkzeug==3.0.4
