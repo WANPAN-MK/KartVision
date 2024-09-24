@@ -46,11 +46,15 @@ def run():
             print("日本国旗が見つかりました。スクリーンショットを撮る前に待機します...")
             sleep(wait_time_before_screenshot)
             screenshot_manager.screenshot()
-            screenshot_manager.clip_screenshot((1520, 204, 2125, 1596))
+            screenshot_manager.clip_screenshot((1106, 236, 1632, 1282))
             image_editor.preprocess_image()
             ranking = visionapi.read_result_to_ranking()
-            extextract_tags = analyzer.extract_tags(ranking)
-            print(extextract_tags)
+            for user in ranking:
+                print(user.get_dict())
+            print("タグと名前を設定します...")
+            tag_users = analyzer.set_tag_and_name(ranking, 2)
+            for tag_user in tag_users:
+                print(tag_user.get_dict())
             
             running = False
 
