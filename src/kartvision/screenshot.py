@@ -30,8 +30,7 @@ class Screenshot_Manager():
             cropped_image.save("src/kartvision/static/cashe/clip_screenshot.png")
 
 def get_screenshot() -> List[str]:
-    # ToDo 時間でソート
     directory = "src/kartvision/static/history"
     images = ['history/' + f for f in os.listdir(directory) if f.endswith('.png')]
-    print(images)
+    images.sort(reverse=True, key=lambda x: os.path.getmtime(os.path.join(directory, x.split('history/')[1])))
     return images

@@ -6,7 +6,7 @@ class User:
         self.raw_name = raw_name
         self.tag = None
         self.name = None
-        self.points = 0
+        self.points = []
 
     def get_dict(self) -> Dict[str, Any]:
         return {
@@ -21,14 +21,14 @@ class User:
         self.name = name
 
     def add_points(self, points: int):
-        self.points += points
+        self.points.append(points)
 
     def set_tag_and_name(self, tag: str, name: str):
         self.tag = tag
         self.name = name
 
-    def add_points(self, points: int):
-        self.points += points
+    def sum_points(self):
+        return sum(self.points)
 
 
 # タグと名前を分ける関数の定義
@@ -71,3 +71,9 @@ def set_tag_and_name(users: List[User], group_num: int) -> List[User]:
 
     # 確定したユーザーリストを返す
     return final_users
+
+def assign_points(ranking: List[User]):
+    points_by_position = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+    
+    for idx, user in enumerate(ranking):
+        user.add_points(points_by_position[idx])

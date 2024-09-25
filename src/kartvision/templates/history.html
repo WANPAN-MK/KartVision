@@ -3,19 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <title>History</title>
+    <style>
+      /* 画像のグリッドレイアウト */
+      .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-gap: 10px;
+        margin-top: 20px;
+      }
+      .image-item {
+        text-align: center;
+      }
+      img {
+        max-width: 100%;
+        height: auto;
+        cursor: pointer;
+        transition: transform 0.3s;
+      }
+      img:hover {
+        transform: scale(1.1);
+      }
+      .timestamp {
+        font-size: 12px;
+        color: gray;
+        margin-top: 5px;
+      }
+    </style>
   </head>
   <body>
     <h1>History</h1>
-    <ul>
+    <div class="image-grid">
       {% for image in images %}
-      <li>
-        <img
-          src="{{ url_for('static', filename=image) }}"
-          alt="{{ image }}"
-          width="200"
-        />
-      </li>
+      <div class="image-item">
+        <a href="{{ url_for('static', filename=image) }}" target="_blank">
+          <img src="{{ url_for('static', filename=image) }}" alt="Screenshot" />
+        </a>
+        <div class="timestamp">{{ image.split('_')[1].replace('.png', '') }}</div> <!-- 画像名からタイムスタンプを表示 -->
+      </div>
       {% endfor %}
-    </ul>
+    </div>
   </body>
 </html>
