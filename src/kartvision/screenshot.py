@@ -1,7 +1,7 @@
 import os
 import pyautogui
 from PIL import Image
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 import datetime
 
 class Screenshot_Manager():
@@ -34,3 +34,18 @@ def get_screenshot() -> List[str]:
     images = ['history/' + f for f in os.listdir(directory) if f.endswith('.png')]
     images.sort(reverse=True, key=lambda x: os.path.getmtime(os.path.join(directory, x.split('history/')[1])))
     return images
+
+def get_screenshot_by_date() -> Dict[str, List[str]]:
+    directory = "src/kartvision/static/history"
+    images = ['history/' + f for f in os.listdir(directory) if f.endswith('.png')]
+    images.sort(reverse=True, key=lambda x: os.path.getmtime(os.path.join(directory, x.split('history/')[1])))
+    images_by_date = {}
+    for image in images:
+        # ファイル名から日付を抽出（例：screenshot_YYYYMMDD_HHMMSS.png）
+        filename = image.split('/')[-1]
+        date_time_str = filename.replace('screenshot_', '').replace('.png', '')
+        date_part = date_time_str.split('_')[0]  # 'YYYYMMDD'
+        if date_part not in images_by_date:
+            images_by_date[date_part] = []
+        images_by_date[date_part].append(image)
+    return images_by_date
