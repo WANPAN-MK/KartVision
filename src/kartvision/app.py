@@ -7,7 +7,6 @@ import screenshot
 import image_editor
 import analyzer
 
-
 data = [
     {'team': "A", 'points': 65},
     {'team': "B", 'points': 56},
@@ -23,8 +22,9 @@ def results():
 
 @app.route("/history")
 def history():
-    images = screenshot.get_screenshot()
-    return render_template("history.html", images=images)
+    images_by_date = screenshot.get_screenshot_by_date()
+    dates = sorted(images_by_date.keys(), reverse=True)
+    return render_template("history.html", images_by_date=images_by_date, dates=dates)
 
 def run():
     # 設定
