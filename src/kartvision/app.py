@@ -6,19 +6,17 @@ from time import sleep
 import screenshot
 import image_editor
 import analyzer
+from threading import Lock
 
-data = [
-    {'team': "A", 'points': 65},
-    {'team': "B", 'points': 56},
-    {'team': "C", 'points': 31},
-    {'team': "D", 'points': 12},
-]
+data_lock = Lock()
+data = []
 
 app = Flask(__name__)
 
 @app.route("/")
 def results():
-    return render_template("result.html", data=data)
+    with data_lock:
+        return render_template("result.html", data=data)
 
 @app.route("/history")
 def history():
@@ -27,6 +25,7 @@ def history():
     return render_template("history.html", images_by_date=images_by_date, dates=dates)
 
 def run():
+    global data
     # 設定
     wait_time_before_screenshot = 0.3
     flag_image = "src/kartvision/static/images/flag_trigger.png"
@@ -57,6 +56,22 @@ def run():
             for tag_user in tag_users:
                 print(tag_user.get_dict())
             
+            # タグごとのポイント合計を計算
+            total_points_by_tag = analyzer.calculate_total_points_by_tag(tag_users)
+            
+            # ポイントの降順にソート
+            total_points_by_tag.sort(key=lambda x: x['points'], reverse=True)
+            
+            # グローバル変数dataを更新（ロックを取得）
+            with data_lock:
+                data = total_points_by_tag
+
+            # 計算結果を表示（デバッグ用）
+            print("合計ポイント:")
+            for item in data:
+                print(f"{item['tag']}: {item['points']}")
+
+            # runningをFalseにしてループを終了（必要に応じて）
             running = False
 
 if __name__ == "__main__":

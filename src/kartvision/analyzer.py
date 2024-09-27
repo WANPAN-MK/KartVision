@@ -1,4 +1,5 @@
 from typing import Any, List, Dict
+from collections import defaultdict
 
 
 class User:
@@ -75,6 +76,18 @@ def set_tag_and_name(users: List[User], group_num: int) -> List[User]:
         # 全ユーザーが確定したら終了
         if not remaining_users:
             break
+        
+        # 残ったユーザーに対してタグがない場合、名前の最初の文字をタグとして設定
+    for user in remaining_users:
+        if user.raw_name:
+            tag = user.raw_name[0]  # 名前の最初の1文字をタグとして使用
+            name = user.raw_name[1:] if len(user.raw_name) > 1 else ''
+            user.set_tag_and_name(tag, name)
+        else:
+            user.set_tag_and_name('', user.raw_name)  # タグなしで名前だけ設定
+        final_users.append(user)
+
+    return final_users
 
     # 残ったユーザーはタグなしで名前だけ設定
     for user in remaining_users:
@@ -92,3 +105,12 @@ def assign_points(ranking: List[User]):
             user.add_points(points_by_position[idx])
         else:
             user.add_points(0)  # 順位がポイントリストを超える場合は0ポイント
+            
+def calculate_total_points_by_tag(users: List[User]) -> List[Dict[str, Any]]:
+    tag_points = defaultdict(int)
+    
+    for user in users:
+        tag_points[user.tag] += user.sum_points()
+        
+    result = [{'tag': tag, 'points': points} for tag, points in tag_points.items()]
+    return result
