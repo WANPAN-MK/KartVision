@@ -1,6 +1,6 @@
+import re
 from typing import Any, List, Dict
 from collections import defaultdict
-
 
 class User:
     def __init__(self, raw_name: str) -> None:
@@ -27,7 +27,6 @@ class User:
     def sum_points(self):
         return sum(self.points)
 
-
 def set_tag_and_name(users: List[User], group_num: int) -> List[User]:
     remaining_users = users[:]  # 元のユーザーリストをコピーして処理する
     final_users = []
@@ -53,11 +52,17 @@ def set_tag_and_name(users: List[User], group_num: int) -> List[User]:
                 if not name_candidate:
                     continue  # 名前が空の場合はスキップ
 
+                # タグ候補から特殊文字を除外
+                tag_candidate_clean = re.sub(r'[^\w]', '', tag_candidate)
+
+                if not tag_candidate_clean:
+                    continue  # クリーン後のタグが空の場合はスキップ
+
                 # タグ候補でユーザーをグループ化
-                key = (position, tag_candidate)
+                key = (position, tag_candidate_clean)
                 if key not in tag_to_users:
                     tag_to_users[key] = []
-                tag_to_users[key].append((user, tag_candidate, name_candidate))
+                tag_to_users[key].append((user, tag_candidate_clean, name_candidate))
 
         # グループ数がgroup_num以上のタグを確定
         confirmed_users = []
@@ -76,11 +81,12 @@ def set_tag_and_name(users: List[User], group_num: int) -> List[User]:
         # 全ユーザーが確定したら終了
         if not remaining_users:
             break
-        
-        # 残ったユーザーに対してタグがない場合、名前の最初の文字をタグとして設定
+
+    # 残ったユーザーに対してタグがない場合、名前の最初の文字をタグとして設定
     for user in remaining_users:
         if user.raw_name:
-            tag = user.raw_name[0]  # 名前の最初の1文字をタグとして使用
+            # タグ候補をクリーン
+            tag = re.sub(r'[^\w]', '', user.raw_name[0])  # 名前の最初の1文字をタグとして使用
             name = user.raw_name[1:] if len(user.raw_name) > 1 else ''
             user.set_tag_and_name(tag, name)
         else:
@@ -88,14 +94,6 @@ def set_tag_and_name(users: List[User], group_num: int) -> List[User]:
         final_users.append(user)
 
     return final_users
-
-    # 残ったユーザーはタグなしで名前だけ設定
-    for user in remaining_users:
-        user.set_tag_and_name('', user.raw_name)
-        final_users.append(user)
-
-    return final_users
-
 
 def assign_points(ranking: List[User]):
     points_by_position = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
@@ -105,12 +103,12 @@ def assign_points(ranking: List[User]):
             user.add_points(points_by_position[idx])
         else:
             user.add_points(0)  # 順位がポイントリストを超える場合は0ポイント
-            
+
 def calculate_total_points_by_tag(users: List[User]) -> List[Dict[str, Any]]:
     tag_points = defaultdict(int)
-    
+
     for user in users:
         tag_points[user.tag] += user.sum_points()
-        
+
     result = [{'tag': tag, 'points': points} for tag, points in tag_points.items()]
     return result

@@ -6,87 +6,46 @@
 #   features: []
 #   all-features: false
 #   with-sources: false
+#   generate-hashes: false
+#   universal: false
 
 -e file:.
 blinker==1.8.2
-    # via flask
 cachetools==5.5.0
-    # via google-auth
 certifi==2024.8.30
-    # via requests
 charset-normalizer==3.3.2
-    # via requests
 click==8.1.7
-    # via flask
-colorama==0.4.6
-    # via click
 flask==3.0.3
-    # via kartvision
 google-api-core==2.20.0
-    # via google-cloud-vision
 google-auth==2.35.0
-    # via google-api-core
-    # via google-cloud-vision
 google-cloud-vision==3.7.4
-    # via kartvision
 googleapis-common-protos==1.65.0
-    # via google-api-core
-    # via grpcio-status
 grpcio==1.66.1
-    # via google-api-core
-    # via grpcio-status
 grpcio-status==1.66.1
-    # via google-api-core
 idna==3.10
-    # via requests
 itsdangerous==2.2.0
-    # via flask
 jinja2==3.1.4
-    # via flask
 markupsafe==2.1.5
-    # via jinja2
-    # via werkzeug
 mouseinfo==0.1.3
-    # via pyautogui
 numpy==2.1.1
-    # via opencv-python
 opencv-python==4.10.0.84
-    # via kartvision
 pillow==10.4.0
-    # via kartvision
 proto-plus==1.24.0
-    # via google-api-core
-    # via google-cloud-vision
 protobuf==5.28.2
-    # via google-api-core
-    # via google-cloud-vision
-    # via googleapis-common-protos
-    # via grpcio-status
-    # via proto-plus
 pyasn1==0.6.1
-    # via pyasn1-modules
-    # via rsa
 pyasn1-modules==0.4.1
-    # via google-auth
 pyautogui==0.9.54
-    # via kartvision
 pygetwindow==0.0.9
-    # via pyautogui
 pymsgbox==1.0.9
-    # via pyautogui
+pyobjc-core==10.3.1
+pyobjc-framework-cocoa==10.3.1
+pyobjc-framework-quartz==10.3.1
 pyperclip==1.9.0
-    # via mouseinfo
 pyrect==0.2.0
-    # via pygetwindow
 pyscreeze==1.0.1
-    # via pyautogui
 pytweening==1.2.0
-    # via pyautogui
 requests==2.32.3
-    # via google-api-core
 rsa==4.9
-    # via google-auth
+rubicon-objc==0.4.9
 urllib3==2.2.3
-    # via requests
 werkzeug==3.0.4
-    # via flask

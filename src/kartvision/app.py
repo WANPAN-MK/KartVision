@@ -7,9 +7,12 @@ import screenshot
 import image_editor
 import analyzer
 from threading import Lock
+import time
 
 data_lock = Lock()
 data = []
+all_users_lock = Lock()
+all_users = {}  
 
 app = Flask(__name__)
 
@@ -25,7 +28,7 @@ def history():
     return render_template("history.html", images_by_date=images_by_date, dates=dates)
 
 def run():
-    global data
+    global data, all_users
     # 設定
     wait_time_before_screenshot = 0.3
     flag_image = "src/kartvision/static/images/flag_trigger.png"
@@ -56,8 +59,18 @@ def run():
             for tag_user in tag_users:
                 print(tag_user.get_dict())
             
-            # タグごとのポイント合計を計算
-            total_points_by_tag = analyzer.calculate_total_points_by_tag(tag_users)
+            # ユーザーデータを累積
+            with all_users_lock:
+                for user in tag_users:
+                    key = user.raw_name
+                    if key in all_users:
+                        # 既存のユーザーの場合、ポイントを累積
+                        all_users[key].points.extend(user.points)
+                    else:
+                        # 新規ユーザーの場合、ユーザーを追加
+                        all_users[key] = user
+
+            total_points_by_tag = analyzer.calculate_total_points_by_tag(list(all_users.values()))
             
             # ポイントの降順にソート
             total_points_by_tag.sort(key=lambda x: x['points'], reverse=True)
@@ -70,9 +83,9 @@ def run():
             print("合計ポイント:")
             for item in data:
                 print(f"{item['tag']}: {item['points']}")
-
-            # runningをFalseにしてループを終了（必要に応じて）
-            running = False
+                
+            time.sleep(10)
+            # running = False
 
 if __name__ == "__main__":
     # 画像処理スレッドを開始
