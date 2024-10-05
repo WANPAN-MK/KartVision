@@ -53,14 +53,8 @@ def run():
             sleep(wait_time_before_screenshot)
             screenshot_manager.screenshot()
 
-            regions = [
-                (1520, 204, 2125, 309), (1520, 321, 2125, 426), 
-                (1520, 438, 2125, 543), (1520, 555, 2125, 660), 
-                (1520, 672, 2125, 777), (1520, 789, 2125, 894), 
-                (1520, 906, 2125, 1011), (1520, 1023, 2125, 1128),
-                (1520, 1140, 2125, 1245), (1520, 1257, 2125, 1362),
-                (1520, 1374, 2125, 1479), (1520, 1491, 2125, 1596)
-            ]
+            region = [1520, 204, 2125, 1596]
+            regions = screenshot.get_regions(region)
             
             screenshot_manager.clip_and_combine_screenshot(
                 regions, "src/kartvision/static/cashe/combined_image.png"

@@ -1,7 +1,7 @@
 import os
 import pyautogui
 from PIL import Image
-from typing import List, Tuple, Dict
+from typing import List, Dict
 import datetime
 
 class Screenshot_Manager():
@@ -23,8 +23,7 @@ class Screenshot_Manager():
         screenshot.save(self.screenshot_filename)
         print(f"スクリーンショットを保存しました: {self.screenshot_filename}")
     
-    def clip_and_combine_screenshot(self, regions: List[Tuple[int]], output_filename: str):
-        
+    def clip_and_combine_screenshot(self, regions: List[List[int]], output_filename: str):
         # 複数の座標でクロッピングし、それらを縦に結合
         with Image.open(self.screenshot_filename) as img:
             cropped_images = [img.crop(region) for region in regions]
@@ -60,3 +59,15 @@ def get_screenshot_by_date() -> Dict[str, List[str]]:
             images_by_date[date_part] = []
         images_by_date[date_part].append(image)
     return images_by_date
+
+def get_regions(region:List[int]) -> List[List[int]]:
+    result_ratio = [10, 1] 
+            
+    region_len = region[3] - region[1]
+    num = result_ratio[0]*12 + result_ratio[1]*11
+    unit_len = region_len / num
+    regions = []
+    for i in range(num+1):
+        if i % (result_ratio[0] + result_ratio[1]) == result_ratio[0]:
+            regions.append([region[0], region[1] + (i - result_ratio[0])*unit_len, region[2], region[1] + i*unit_len])
+    return regions
