@@ -23,11 +23,22 @@ class Screenshot_Manager():
         screenshot.save(self.screenshot_filename)
         print(f"スクリーンショットを保存しました: {self.screenshot_filename}")
     
-    def clip_screenshot(self, region: Tuple[int]):
-        # ToDo エラー処理（self.screenshot_filename）
+    def clip_and_combine_screenshot(self, regions: List[Tuple[int]], output_filename: str):
+        
+        # 複数の座標でクロッピングし、それらを縦に結合
         with Image.open(self.screenshot_filename) as img:
-            cropped_image = img.crop(region)
-            cropped_image.save("src/kartvision/static/cashe/clip_screenshot.png")
+            cropped_images = [img.crop(region) for region in regions]
+            total_height = sum(cropped.height for cropped in cropped_images)
+            max_width = max(cropped.width for cropped in cropped_images)
+            combined_image = Image.new('RGB', (max_width, total_height))
+            # 各画像を結合
+            y_offset = 0
+            for cropped in cropped_images:
+                combined_image.paste(cropped, (0, y_offset))
+                y_offset += cropped.height
+            combined_image.save(output_filename)
+            print(f"結合された画像を保存しました: {output_filename}")
+
 
 def get_screenshot() -> List[str]:
     directory = "src/kartvision/static/history"
