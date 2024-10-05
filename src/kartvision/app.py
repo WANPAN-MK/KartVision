@@ -14,11 +14,15 @@ data = []
 all_users_lock = Lock()
 all_users = {}
 
-screenshot_manager = screenshot.Screenshot_Manager()  # グローバルでインスタンスを一度だけ作成
+screenshot_manager = screenshot.Screenshot_Manager()
 
 app = Flask(__name__)
 
 @app.route("/")
+def home():
+    return render_template("home.html")
+
+@app.route("/result")
 def results():
     with data_lock:
         return render_template("result.html", data=data)
@@ -40,7 +44,7 @@ def run():
         sleep(0.1)
         print("待機中...")
         try:
-            location = pyautogui.locateOnScreen(flag_image, confidence=0.7)
+            location = pyautogui.locateOnScreen(flag_image, confidence=0.8)
         except pyautogui.ImageNotFoundException:
             continue
 
@@ -97,7 +101,7 @@ def run():
                 print(f"{item['tag']}: {item['points']}")
 
             time.sleep(10)
-            # running = False
+            running = False
 
 if __name__ == "__main__":
     # 画像処理スレッドを開始
