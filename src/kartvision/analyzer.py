@@ -1,3 +1,4 @@
+# analyzer.py
 import re
 from typing import Any, List, Dict
 from collections import defaultdict
@@ -27,13 +28,13 @@ class User:
     def sum_points(self):
         return sum(self.points)
 
-def set_tag_and_name(users: List[User], group_num: int) -> List[User]:
+def set_tag_and_name(users: List[User], group_num: int, tag_positions=['prefix', 'suffix']) -> List[User]:
     remaining_users = users[:]  # 元のユーザーリストをコピーして処理する
     final_users = []
+    confirmed_users = []  # confirmed_users の初期化をループの外に移動
 
     for tag_len in range(10, 0, -1):  # タグを10文字から1文字の長さで試す
         tag_to_users = {}
-        tag_positions = ['prefix', 'suffix']  # タグの位置：先頭か末尾
 
         for position in tag_positions:
             # ユーザーごとにタグと名前を分けて一時的にセット
@@ -48,6 +49,8 @@ def set_tag_and_name(users: List[User], group_num: int) -> List[User]:
                 elif position == 'suffix':
                     tag_candidate = user.raw_name[-tag_len:]
                     name_candidate = user.raw_name[:-tag_len]
+                else:
+                    continue  # 無効なポジションの場合はスキップ
 
                 if not name_candidate:
                     continue  # 名前が空の場合はスキップ
@@ -64,8 +67,7 @@ def set_tag_and_name(users: List[User], group_num: int) -> List[User]:
                     tag_to_users[key] = []
                 tag_to_users[key].append((user, tag_candidate_clean, name_candidate))
 
-        # グループ数がgroup_num以上のタグを確定
-        confirmed_users = []
+        # グループ数が group_num 以上のタグを確定
         for (position, tag), grouped_users in tag_to_users.items():
             if len(grouped_users) >= group_num:
                 for user, tag_candidate, name_candidate in grouped_users:
@@ -73,7 +75,7 @@ def set_tag_and_name(users: List[User], group_num: int) -> List[User]:
                     final_users.append(user)
                     confirmed_users.append(user)
 
-        # 確定したユーザーをremaining_usersから除外
+        # 確定したユーザーを remaining_users から除外
         remaining_users = [
             user for user in remaining_users if user not in confirmed_users
         ]

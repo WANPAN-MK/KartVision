@@ -1,3 +1,4 @@
+# app.py
 from flask import render_template, Flask
 import visionapi
 import threading
@@ -68,7 +69,8 @@ def run():
                 print(user.get_dict())
 
             print("タグと名前を設定します...")
-            tag_users = analyzer.set_tag_and_name(ranking, 2)
+            tag_users = analyzer.set_tag_and_name(ranking, group_num=2, tag_positions=['prefix'])
+
             
             for tag_user in tag_users:
                 print(tag_user.get_dict())
