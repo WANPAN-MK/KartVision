@@ -1,4 +1,3 @@
-# app.py
 from flask import render_template, Flask
 import visionapi
 import threading
@@ -34,7 +33,7 @@ def history():
     dates = sorted(images_by_date.keys(), reverse=True)
     return render_template("history.html", images_by_date=images_by_date, dates=dates)
 
-def run():
+def run(group_num, tag_positions):
     global data, all_users
     # 設定
     wait_time_before_screenshot = 0.3
@@ -69,9 +68,8 @@ def run():
                 print(user.get_dict())
 
             print("タグと名前を設定します...")
-            tag_users = analyzer.set_tag_and_name(ranking, group_num=2, tag_positions=['prefix'])
+            tag_users = analyzer.set_tag_and_name(ranking, group_num=group_num, tag_positions=tag_positions)
 
-            
             for tag_user in tag_users:
                 print(tag_user.get_dict())
 
@@ -96,12 +94,27 @@ def run():
             for item in data:
                 print(f"{item['tag']}: {item['points']}")
 
-            time.sleep(10)
+            time.sleep(20)
             running = False
 
 if __name__ == "__main__":
+    # 対戦形式を入力
+    group_num_input = input("対戦形式はどれですか？2v2:2, 3v3:3, 4v4:4, 6v6:6 -> ")
+    try:
+        group_num = int(group_num_input)
+    except ValueError:
+        print("無効な入力です。デフォルトの2を使用します。")
+        group_num = 2
+
+    # タグの位置を入力
+    tag_positions_input = input("この試合は前Tagのみですか？(y/n) -> ")
+    if tag_positions_input.lower() == 'y':
+        tag_positions = ['prefix']
+    else:
+        tag_positions = ['prefix', 'suffix']
+
     # 画像処理スレッドを開始
-    flag_detection_thread = threading.Thread(target=run)
+    flag_detection_thread = threading.Thread(target=run, args=(group_num, tag_positions))
     flag_detection_thread.daemon = True
     flag_detection_thread.start()
 
