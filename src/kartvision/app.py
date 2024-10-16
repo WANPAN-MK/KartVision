@@ -1,3 +1,4 @@
+# app.py
 from flask import render_template, Flask
 import visionapi
 import threading
