@@ -9,6 +9,7 @@ import image_editor
 import analyzer
 from threading import Lock
 import time
+from flask import jsonify
 
 data_lock = Lock()
 data = []
@@ -33,6 +34,11 @@ def history():
     images_by_date = screenshot.get_screenshot_by_date()
     dates = sorted(images_by_date.keys(), reverse=True)
     return render_template("history.html", images_by_date=images_by_date, dates=dates)
+
+@app.route("/api/data")
+def get_data():
+    with data_lock:
+        return jsonify(data)
 
 def run(group_num, tag_positions):
     global data, all_users
@@ -95,7 +101,7 @@ def run(group_num, tag_positions):
             for item in data:
                 print(f"{item['tag']}: {item['points']}")
 
-            time.sleep(20)
+            time.sleep(15)
             running = False
 
 if __name__ == "__main__":
@@ -120,4 +126,4 @@ if __name__ == "__main__":
     flag_detection_thread.start()
 
     # Flaskアプリを実行
-    app.run()
+    app.run(port=5001)

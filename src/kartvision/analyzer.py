@@ -110,6 +110,7 @@ def calculate_total_points_by_tag(users: List[User]) -> List[Dict[str, Any]]:
     tag_points = defaultdict(int)
 
     for user in users:
+        name = user.name if user.name else user.tag  # 名前がない場合はタグを使用
         tag_points[user.tag] += user.sum_points()
 
     result = [{'tag': tag, 'points': points} for tag, points in tag_points.items()]
