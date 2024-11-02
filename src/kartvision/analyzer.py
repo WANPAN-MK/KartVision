@@ -51,11 +51,6 @@ def set_tag_and_name(users: List[User], group_num: int, tag_positions=['prefix',
                     name_candidate = user.raw_name[:-tag_len]
                 else:
                     continue  # 無効なポジションの場合はスキップ
-
-                # ここで、name_candidateが空でもスキップしないようにします
-                # if not name_candidate:
-                #     continue  # 名前が空の場合はスキップ
-
                 # タグ候補でユーザーをグループ化
                 key = (position, tag_candidate)
                 if key not in tag_to_users:

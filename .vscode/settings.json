@@ -1,3 +1,6 @@
 {
-  "python.analysis.extraPaths": ["./src/kartvision"]
+  "python.analysis.extraPaths": [
+    "./src/kartvision"
+  ],
+  "liveServer.settings.port": 5501
 }

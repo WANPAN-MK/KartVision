@@ -5,10 +5,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>マリオカート集計結果 - 編集</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
 <style>
     body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
+        font-family: 'Noto Sans JP', sans-serif;
+        background-color: #f7f7f7;
         color: #333;
         margin: 0;
         padding: 20px;
@@ -16,23 +17,25 @@
 
     h1 {
         text-align: center;
+        color: #444;
+        margin-bottom: 30px;
     }
 
     .team-score {
-        margin: 10px 0;
-        padding: 15px;
+        margin: 15px auto;
+        padding: 20px;
         background-color: #fff;
         border: 1px solid #ddd;
         border-radius: 10px;
-        font-size: 24px;
+        font-size: 18px;
         display: flex;
         align-items: center;
-        box-sizing: border-box;
+        max-width: 600px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .tag-name {
         flex: 1;
-        text-align: left;
         font-weight: bold;
     }
 
@@ -40,9 +43,11 @@
         flex: 0 0 auto;
         margin-left: 20px;
         padding-left: 20px;
-        border-left: 2px solid #333;
+        border-left: 2px solid #ddd;
         white-space: nowrap;
         text-align: right;
+        font-size: 24px;
+        color: #007BFF;
     }
 
     .edit-input {
@@ -51,6 +56,9 @@
         font-size: 24px;
         margin-left: 20px;
         text-align: right;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 5px;
     }
 
     .actions {
@@ -61,14 +69,72 @@
 
     .action-button {
         margin-top: 5px;
-        padding: 5px;
+        padding: 8px 12px;
         font-size: 16px;
         cursor: pointer;
+        background-color: #007BFF;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        outline: none;
+        transition: background-color 0.2s;
+    }
+
+    .action-button:hover {
+        background-color: #0056b3;
+    }
+
+    .action-button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    /* アイコンを追加する場合のスタイル */
+    .action-button.edit::before {
+        content: '✏️';
+        margin-right: 5px;
+    }
+
+    .action-button.save::before {
+        content: '💾';
+        margin-right: 5px;
+    }
+
+    .action-button.merge::before {
+        content: '🔀';
+        margin-right: 5px;
+    }
+
+    /* レスポンシブデザイン */
+    @media (max-width: 600px) {
+        .team-score {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .points, .edit-input {
+            margin-left: 0;
+            margin-top: 10px;
+            padding-left: 0;
+            border-left: none;
+            font-size: 20px;
+        }
+
+        .actions {
+            flex-direction: row;
+            margin-left: 0;
+            margin-top: 10px;
+        }
+
+        .action-button {
+            margin-top: 0;
+            margin-right: 10px;
+        }
     }
 </style>
 </head>
 <body>
-    <h1>マリオカート集計結果 - 編集ページ</h1>
+    <h1>集計結果 - 編集ページ</h1>
     <div id="results">
         <!-- データはJavaScriptで動的に挿入されます -->
     </div> 
@@ -91,9 +157,9 @@
                         <div class="points">${item.points}</div>
                         <input type="number" class="edit-input" value="${item.points}">
                         <div class="actions">
-                            <button class="action-button edit-button">編集</button>
-                            <button class="action-button save-button" style="display:none;">保存</button>
-                            <button class="action-button merge-button">統合</button>
+                            <button class="action-button edit-button edit">編集</button>
+                            <button class="action-button save-button save" style="display:none;">保存</button>
+                            <button class="action-button merge-button merge">統合</button>
                         </div>
                     `;
                     resultsDiv.appendChild(scoreDiv);
@@ -113,11 +179,11 @@
             btn.addEventListener('click', () => {
                 btn.style.display = 'none';
                 const saveBtn = btn.parentElement.querySelector('.save-button');
-                saveBtn.style.display = 'inline';
+                saveBtn.style.display = 'inline-block';
                 const scoreDiv = btn.parentElement.parentElement.querySelector('.points');
                 const inputField = btn.parentElement.parentElement.querySelector('.edit-input');
                 scoreDiv.style.display = 'none';
-                inputField.style.display = 'inline';
+                inputField.style.display = 'inline-block';
             });
         });
 
@@ -144,7 +210,7 @@
                 // ボタンと入力フィールドをリセット
                 btn.style.display = 'none';
                 const editBtn = btn.parentElement.querySelector('.edit-button');
-                editBtn.style.display = 'inline';
+                editBtn.style.display = 'inline-block';
                 scoreDiv.style.display = 'block';
                 inputField.style.display = 'none';
             });
