@@ -11,6 +11,9 @@ from threading import Lock
 import time
 from flask import jsonify
 
+REGION = [1520, 204, 2125, 1596]
+
+#ToDO: global変数をなくす
 data_lock = Lock()
 data = []
 all_users_lock = Lock()
@@ -55,33 +58,34 @@ def edit_points():
         # 編集対象のユーザーを検索
         users_to_update = [user for user in all_users.values() if user.tag == tag_to_update]
 
-        if users_to_update:
-            if target_tag:
-                # タグの統合処理
-                for user in users_to_update:
-                    user.tag = target_tag  # タグを更新
-
-            elif new_points is not None:
-                # 点数の更新
-                total_points = sum([user.sum_points() for user in users_to_update])
-                difference = new_points - total_points
-                # 点数を均等に配分
-                per_user_adjustment = difference // len(users_to_update)
-                for user in users_to_update:
-                    if user.points:
-                        user.points[-1] += per_user_adjustment  # 最新のポイントを調整
-
-            # data を再計算
-            total_points_by_tag = analyzer.calculate_total_points_by_tag(list(all_users.values()))
-            total_points_by_tag.sort(key=lambda x: x['points'], reverse=True)
-
-            with data_lock:
-                global data
-                data = total_points_by_tag
-
-            return jsonify({"status": "success"})
-        else:
+        if not users_to_update:
             return jsonify({"status": "error", "message": "タグが見つかりませんでした"}), 404
+        
+        if target_tag:
+            # タグの統合処理
+            for user in users_to_update:
+                user.tag = target_tag  # タグを更新
+
+        elif new_points is not None:
+            # 点数の更新
+            total_points = sum([user.sum_points() for user in users_to_update])
+            difference = new_points - total_points
+            # 点数を均等に配分
+            per_user_adjustment = difference // len(users_to_update)
+            for user in users_to_update:
+                if user.points:
+                    user.points[-1] += per_user_adjustment  # 最新のポイントを調整
+
+        # data を再計算
+        total_points_by_tag = analyzer.calculate_total_points_by_tag(list(all_users.values()))
+        total_points_by_tag.sort(key=lambda x: x['points'], reverse=True)
+
+        with data_lock:
+            global data
+            data = total_points_by_tag
+
+        return jsonify({"status": "success"})
+        
 
 def run(group_num, tag_positions):
     global data, all_users
@@ -105,9 +109,7 @@ def run(group_num, tag_positions):
         sleep(wait_time_before_screenshot)
         screenshot_manager.screenshot()
 
-        region = [1520, 204, 2125, 1596]
-        regions = screenshot.get_regions(region)
-        
+        regions = screenshot.get_regions(REGION)
         screenshot_manager.clip_and_combine_screenshot(
             regions, "src/kartvision/static/cashe/combined_image.png"
         )
@@ -117,13 +119,13 @@ def run(group_num, tag_positions):
         analyzer.assign_points(ranking)
 
         for user in ranking:
-            print(user.get_dict())
+            print(user)
 
         print("タグと名前を設定します...")
         tag_users = analyzer.set_tag_and_name(ranking, group_num=group_num, tag_positions=tag_positions)
 
         for tag_user in tag_users:
-            print(tag_user.get_dict())
+            print(tag_user)
 
         # ユーザーデータを累積
         with all_users_lock:

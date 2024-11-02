@@ -1,5 +1,4 @@
 # analyzer.py
-import re
 from typing import Any, List, Dict
 from collections import defaultdict
 
@@ -9,14 +8,11 @@ class User:
         self.tag = None
         self.name = None
         self.points = []
-
-    def get_dict(self) -> Dict[str, Any]:
-        return {
-            "raw_name": self.raw_name,
-            "tag": self.tag,
-            "name": self.name,
-            "points": self.points,
-        }
+        
+    def __str__(self) -> str:
+        if not self.tag:
+            return f"{self.raw_name}: points={self.points}"
+        return f"{self.raw_name}: tag={self.tag}, name={self.name}, points={self.points}"
 
     def set_tag_and_name(self, tag: str, name: str):
         self.tag = tag
