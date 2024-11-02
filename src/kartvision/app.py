@@ -98,70 +98,75 @@ def run(group_num, tag_positions):
         except pyautogui.ImageNotFoundException:
             continue
 
-        if location:
-            print("日本国旗が見つかりました。スクリーンショットを撮る前に待機します...")
-            sleep(wait_time_before_screenshot)
-            screenshot_manager.screenshot()
+        if not location:
+            continue
+        
+        print("日本国旗が見つかりました。スクリーンショットを撮る前に待機します...")
+        sleep(wait_time_before_screenshot)
+        screenshot_manager.screenshot()
 
-            region = [1520, 204, 2125, 1596]
-            regions = screenshot.get_regions(region)
-            
-            screenshot_manager.clip_and_combine_screenshot(
-                regions, "src/kartvision/static/cashe/combined_image.png"
-            )
+        region = [1520, 204, 2125, 1596]
+        regions = screenshot.get_regions(region)
+        
+        screenshot_manager.clip_and_combine_screenshot(
+            regions, "src/kartvision/static/cashe/combined_image.png"
+        )
 
-            image_editor.preprocess_image()
-            ranking = visionapi.read_result_to_ranking()
-            analyzer.assign_points(ranking)
+        image_editor.preprocess_image()
+        ranking = visionapi.read_result_to_ranking()
+        analyzer.assign_points(ranking)
 
-            for user in ranking:
-                print(user.get_dict())
+        for user in ranking:
+            print(user.get_dict())
 
-            print("タグと名前を設定します...")
-            tag_users = analyzer.set_tag_and_name(ranking, group_num=group_num, tag_positions=tag_positions)
+        print("タグと名前を設定します...")
+        tag_users = analyzer.set_tag_and_name(ranking, group_num=group_num, tag_positions=tag_positions)
 
-            for tag_user in tag_users:
-                print(tag_user.get_dict())
+        for tag_user in tag_users:
+            print(tag_user.get_dict())
 
-            # ユーザーデータを累積
-            with all_users_lock:
-                for user in tag_users:
-                    key = user.raw_name
-                    if key in all_users:
-                        # 既存のユーザーの場合、ポイントを累積
-                        all_users[key].points.extend(user.points)
-                    else:
-                        # 新規ユーザーの場合、ユーザーを追加
-                        all_users[key] = user
+        # ユーザーデータを累積
+        with all_users_lock:
+            for user in tag_users:
+                key = user.raw_name
+                if key in all_users:
+                    # 既存のユーザーの場合、ポイントを累積
+                    all_users[key].points.extend(user.points)
+                else:
+                    # 新規ユーザーの場合、ユーザーを追加
+                    all_users[key] = user
 
-            total_points_by_tag = analyzer.calculate_total_points_by_tag(list(all_users.values()))
-            total_points_by_tag.sort(key=lambda x: x['points'], reverse=True)
-            
-            with data_lock:
-                data = total_points_by_tag
+        total_points_by_tag = analyzer.calculate_total_points_by_tag(list(all_users.values()))
+        total_points_by_tag.sort(key=lambda x: x['points'], reverse=True)
+        
+        with data_lock:
+            data = total_points_by_tag
 
-            print("合計ポイント:")
-            for item in data:
-                print(f"{item['tag']}: {item['points']}")
+        print("合計ポイント:")
+        for item in data:
+            print(f"{item['tag']}: {item['points']}")
 
-            time.sleep(15)
-            # running = False
+        time.sleep(15)
+        # running = False
 
 if __name__ == "__main__":
-    # 対戦形式を入力
-    group_num_input = input("対戦形式はどれですか？2v2:2, 3v3:3, 4v4:4, 6v6:6 -> ")
-    try:
-        group_num = int(group_num_input)
-    except ValueError:
-        print("無効な入力です。デフォルトの2を使用します。")
-        group_num = 2
-
+   # 対戦形式を入力
+    is_valid_group_num = False
+    while is_valid_group_num == False:
+        group_num = input("対戦形式はどれですか？2v2:2, 3v3:3, 4v4:4, 6v6:6 -> ")
+        if group_num in ['2', '3', '4', '6']:
+            is_valid_group_num = True
+        else:
+            print("無効な入力です。もう一度入力してください。")
     # タグの位置を入力
-    tag_positions_input = input("この試合は前Tagのみですか？(y/n) -> ")
-    if tag_positions_input.lower() == 'y':
-        tag_positions = ['prefix']
-    else:
-        tag_positions = ['prefix', 'suffix']
+    # ToDO 自動化
+    is_valid_tag_positions = False
+    while is_valid_tag_positions == False:
+        tag_positions = input("この試合は前Tagのみですか？(y/n) -> ")
+        if tag_positions in ['y', 'n']:
+            is_valid_tag_positions = True
+        else:
+            print("無効な入力です。もう一度入力してください。")     
 
     # 画像処理スレッドを開始
     flag_detection_thread = threading.Thread(target=run, args=(group_num, tag_positions))
@@ -169,4 +174,4 @@ if __name__ == "__main__":
     flag_detection_thread.start()
 
     # Flaskアプリを実行
-    app.run(port=5001)
+    app.run(port=8888)
