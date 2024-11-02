@@ -2,17 +2,20 @@
 from typing import Any, List, Dict
 from collections import defaultdict
 
+
 class User:
     def __init__(self, raw_name: str) -> None:
         self.raw_name = raw_name
         self.tag = None
         self.name = None
         self.points = []
-        
+
     def __str__(self) -> str:
         if not self.tag:
             return f"{self.raw_name}: points={self.points}"
-        return f"{self.raw_name}: tag={self.tag}, name={self.name}, points={self.points}"
+        return (
+            f"{self.raw_name}: tag={self.tag}, name={self.name}, points={self.points}"
+        )
 
     def set_tag_and_name(self, tag: str, name: str):
         self.tag = tag
@@ -24,7 +27,10 @@ class User:
     def sum_points(self):
         return sum(self.points)
 
-def set_tag_and_name(users: List[User], group_num: int, tag_positions=['prefix', 'suffix']) -> List[User]:
+
+def set_tag_and_name(
+    users: List[User], group_num: int, tag_positions=["prefix", "suffix"]
+) -> List[User]:
     remaining_users = users[:]  # 元のユーザーリストをコピーして処理する
     final_users = []
     confirmed_users = []
@@ -39,10 +45,10 @@ def set_tag_and_name(users: List[User], group_num: int, tag_positions=['prefix',
                 if raw_name_length < tag_len:
                     continue  # ユーザー名がタグ候補より短い場合はスキップ
 
-                if position == 'prefix':
+                if position == "prefix":
                     tag_candidate = user.raw_name[:tag_len]
                     name_candidate = user.raw_name[tag_len:]
-                elif position == 'suffix':
+                elif position == "suffix":
                     tag_candidate = user.raw_name[-tag_len:]
                     name_candidate = user.raw_name[:-tag_len]
                 else:
@@ -74,13 +80,14 @@ def set_tag_and_name(users: List[User], group_num: int, tag_positions=['prefix',
     for user in remaining_users:
         if user.raw_name:
             tag = user.raw_name[0]  # 特殊文字も含めてタグとして使用
-            name = user.raw_name[1:] if len(user.raw_name) > 1 else ''
+            name = user.raw_name[1:] if len(user.raw_name) > 1 else ""
             user.set_tag_and_name(tag, name)
         else:
-            user.set_tag_and_name('', user.raw_name)  # タグなしで名前だけ設定
+            user.set_tag_and_name("", user.raw_name)  # タグなしで名前だけ設定
         final_users.append(user)
 
     return final_users
+
 
 def assign_points(ranking: List[User]):
     points_by_position = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
@@ -91,11 +98,12 @@ def assign_points(ranking: List[User]):
         else:
             user.add_points(0)  # 順位がポイントリストを超える場合は0ポイント
 
+
 def calculate_total_points_by_tag(users: List[User]) -> List[Dict[str, Any]]:
     tag_points = defaultdict(int)
 
     for user in users:
         tag_points[user.tag] += user.sum_points()
 
-    result = [{'tag': tag, 'points': points} for tag, points in tag_points.items()]
+    result = [{"tag": tag, "points": points} for tag, points in tag_points.items()]
     return result

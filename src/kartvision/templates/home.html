@@ -1,47 +1,54 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <title>ホーム</title>
-    <style>
-        /* 全体のスタイル */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            text-align: center; /* コンテンツを中央揃え */
-        }
-        .content {
-            padding: 80px 10px;
-        }
-        /* リンクボタンのスタイル */
-        .link-button {
-            display: inline-block;
-            margin: 20px;
-            padding: 15px 30px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            font-size: 20px;
-            border-radius: 5px;
-        }
-        .link-button:hover {
-            background-color: #45a049;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>ホーム</title>
+  <style>
+    /* 全体のスタイル */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      /* コンテンツを中央揃え */
+    }
+
+    .content {
+      padding: 80px 10px;
+    }
+
+    /* リンクボタンのスタイル */
+    .link-button {
+      display: inline-block;
+      margin: 20px;
+      padding: 15px 30px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      font-size: 20px;
+      border-radius: 5px;
+    }
+
+    .link-button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
+
 <body>
 
-    <div class="content">
-        <h1>KartVision</h1>
-        <p>以下のオプションから選択してください。</p>
+  <div class="content">
+    <h1>KartVision</h1>
+    <p>以下のオプションから選択してください。</p>
 
-        <!-- リンクボタン -->
-        <a href="{{ url_for('results') }}" class="link-button">結果</a>
-        <a href="{{ url_for('history') }}" class="link-button">履歴</a>
-        <a href="{{ url_for('edit') }}" class="link-button">編集</a>
-        <!-- 新しいリンクを追加する場合は、ここに追加 -->
-    </div>
+    <!-- リンクボタン -->
+    <a href="{{ url_for('results') }}" class="link-button">結果</a>
+    <a href="{{ url_for('history') }}" class="link-button">履歴</a>
+    <a href="{{ url_for('edit') }}" class="link-button">編集</a>
+    <!-- 新しいリンクを追加する場合は、ここに追加 -->
+  </div>
 
 </body>
+
 </html>

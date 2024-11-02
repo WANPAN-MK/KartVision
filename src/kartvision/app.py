@@ -13,7 +13,7 @@ from flask import jsonify
 
 REGION = [1520, 204, 2125, 1596]
 
-#ToDO: global変数をなくす
+# ToDO: global変数をなくす
 data_lock = Lock()
 data = []
 all_users_lock = Lock()
@@ -23,14 +23,17 @@ screenshot_manager = screenshot.Screenshot_Manager()
 
 app = Flask(__name__)
 
+
 @app.route("/")
 def home():
     return render_template("home.html")
+
 
 @app.route("/result")
 def results():
     with data_lock:
         return render_template("result.html", data=data)
+
 
 @app.route("/history")
 def history():
@@ -38,15 +41,18 @@ def history():
     dates = sorted(images_by_date.keys(), reverse=True)
     return render_template("history.html", images_by_date=images_by_date, dates=dates)
 
+
 @app.route("/edit")
 def edit():
     with data_lock:
         return render_template("edit.html", data=data)
 
+
 @app.route("/api/data")
 def get_data():
     with data_lock:
         return jsonify(data)
+
 
 @app.route("/api/edit_points", methods=["POST"])
 def edit_points():
@@ -56,11 +62,16 @@ def edit_points():
 
     with all_users_lock:
         # 編集対象のユーザーを検索
-        users_to_update = [user for user in all_users.values() if user.tag == tag_to_update]
+        users_to_update = [
+            user for user in all_users.values() if user.tag == tag_to_update
+        ]
 
         if not users_to_update:
-            return jsonify({"status": "error", "message": "タグが見つかりませんでした"}), 404
-        
+            return (
+                jsonify({"status": "error", "message": "タグが見つかりませんでした"}),
+                404,
+            )
+
         if target_tag:
             # タグの統合処理
             for user in users_to_update:
@@ -77,22 +88,24 @@ def edit_points():
                     user.points[-1] += per_user_adjustment  # 最新のポイントを調整
 
         # data を再計算
-        total_points_by_tag = analyzer.calculate_total_points_by_tag(list(all_users.values()))
-        total_points_by_tag.sort(key=lambda x: x['points'], reverse=True)
+        total_points_by_tag = analyzer.calculate_total_points_by_tag(
+            list(all_users.values())
+        )
+        total_points_by_tag.sort(key=lambda x: x["points"], reverse=True)
 
         with data_lock:
             global data
             data = total_points_by_tag
 
         return jsonify({"status": "success"})
-        
+
 
 def run(group_num, tag_positions):
     global data, all_users
     # 設定
     wait_time_before_screenshot = 0.3
     flag_image = "src/kartvision/static/images/flag_trigger.png"
-    
+
     running = True
     while running:
         sleep(0.1)
@@ -104,7 +117,7 @@ def run(group_num, tag_positions):
 
         if not location:
             continue
-        
+
         print("日本国旗が見つかりました。スクリーンショットを撮る前に待機します...")
         sleep(wait_time_before_screenshot)
         screenshot_manager.screenshot()
@@ -122,7 +135,9 @@ def run(group_num, tag_positions):
             print(user)
 
         print("タグと名前を設定します...")
-        tag_users = analyzer.set_tag_and_name(ranking, group_num=group_num, tag_positions=tag_positions)
+        tag_users = analyzer.set_tag_and_name(
+            ranking, group_num=group_num, tag_positions=tag_positions
+        )
 
         for tag_user in tag_users:
             print(tag_user)
@@ -138,9 +153,11 @@ def run(group_num, tag_positions):
                     # 新規ユーザーの場合、ユーザーを追加
                     all_users[key] = user
 
-        total_points_by_tag = analyzer.calculate_total_points_by_tag(list(all_users.values()))
-        total_points_by_tag.sort(key=lambda x: x['points'], reverse=True)
-        
+        total_points_by_tag = analyzer.calculate_total_points_by_tag(
+            list(all_users.values())
+        )
+        total_points_by_tag.sort(key=lambda x: x["points"], reverse=True)
+
         with data_lock:
             data = total_points_by_tag
 
@@ -151,12 +168,13 @@ def run(group_num, tag_positions):
         time.sleep(15)
         # running = False
 
+
 if __name__ == "__main__":
-   # 対戦形式を入力
+    # 対戦形式を入力
     is_valid_group_num = False
     while is_valid_group_num == False:
         group_num = input("対戦形式はどれですか？2v2:2, 3v3:3, 4v4:4, 6v6:6 -> ")
-        if group_num in ['2', '3', '4', '6']:
+        if group_num in ["2", "3", "4", "6"]:
             is_valid_group_num = True
         else:
             print("無効な入力です。もう一度入力してください。")
@@ -165,13 +183,15 @@ if __name__ == "__main__":
     is_valid_tag_positions = False
     while is_valid_tag_positions == False:
         tag_positions = input("この試合は前Tagのみですか？(y/n) -> ")
-        if tag_positions in ['y', 'n']:
+        if tag_positions in ["y", "n"]:
             is_valid_tag_positions = True
         else:
-            print("無効な入力です。もう一度入力してください。")     
+            print("無効な入力です。もう一度入力してください。")
 
     # 画像処理スレッドを開始
-    flag_detection_thread = threading.Thread(target=run, args=(group_num, tag_positions))
+    flag_detection_thread = threading.Thread(
+        target=run, args=(group_num, tag_positions)
+    )
     flag_detection_thread.daemon = True
     flag_detection_thread.start()
 
