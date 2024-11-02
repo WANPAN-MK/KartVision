@@ -1,7 +1,7 @@
 import io
 from google.cloud import vision
 from typing import List
-from analyzer import User
+from user import User
 
 
 def read_result_to_ranking() -> List[User]:

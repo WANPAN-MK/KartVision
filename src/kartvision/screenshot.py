@@ -24,9 +24,9 @@ class Screenshot_Manager:
         screenshot.save(self.screenshot_filename)
         print(f"スクリーンショットを保存しました: {self.screenshot_filename}")
 
-    def clip_and_combine_screenshot(
-        self, regions: List[List[int]], output_filename: str
-    ):
+    def clip_and_combine_screenshot(self, region: List[List[int]]):
+        output_filename = "src/kartvision/static/cashe/combined_image.png"
+        regions = get_regions(region)
         # 複数の座標でクロッピングし、それらを縦に結合
         with Image.open(self.screenshot_filename) as img:
             cropped_images = [img.crop(region) for region in regions]
