@@ -31,7 +31,7 @@ class User:
 def set_tag_and_name(users: List[User], group_num: int, tag_positions=['prefix', 'suffix']) -> List[User]:
     remaining_users = users[:]  # 元のユーザーリストをコピーして処理する
     final_users = []
-    confirmed_users = []  # confirmed_users の初期化をループの外に移動
+    confirmed_users = []
 
     for tag_len in range(10, 0, -1):  # タグを10文字から1文字の長さで試す
         tag_to_users = {}
@@ -52,20 +52,15 @@ def set_tag_and_name(users: List[User], group_num: int, tag_positions=['prefix',
                 else:
                     continue  # 無効なポジションの場合はスキップ
 
-                if not name_candidate:
-                    continue  # 名前が空の場合はスキップ
-
-                # タグ候補から特殊文字を除外
-                tag_candidate_clean = re.sub(r'[^\w]', '', tag_candidate)
-
-                if not tag_candidate_clean:
-                    continue  # クリーン後のタグが空の場合はスキップ
+                # ここで、name_candidateが空でもスキップしないようにします
+                # if not name_candidate:
+                #     continue  # 名前が空の場合はスキップ
 
                 # タグ候補でユーザーをグループ化
-                key = (position, tag_candidate_clean)
+                key = (position, tag_candidate)
                 if key not in tag_to_users:
                     tag_to_users[key] = []
-                tag_to_users[key].append((user, tag_candidate_clean, name_candidate))
+                tag_to_users[key].append((user, tag_candidate, name_candidate))
 
         # グループ数が group_num 以上のタグを確定
         for (position, tag), grouped_users in tag_to_users.items():
@@ -87,8 +82,7 @@ def set_tag_and_name(users: List[User], group_num: int, tag_positions=['prefix',
     # 残ったユーザーに対してタグがない場合、名前の最初の文字をタグとして設定
     for user in remaining_users:
         if user.raw_name:
-            # タグ候補をクリーン
-            tag = re.sub(r'[^\w]', '', user.raw_name[0])  # 名前の最初の1文字をタグとして使用
+            tag = user.raw_name[0]  # 特殊文字も含めてタグとして使用
             name = user.raw_name[1:] if len(user.raw_name) > 1 else ''
             user.set_tag_and_name(tag, name)
         else:
@@ -110,7 +104,6 @@ def calculate_total_points_by_tag(users: List[User]) -> List[Dict[str, Any]]:
     tag_points = defaultdict(int)
 
     for user in users:
-        name = user.name if user.name else user.tag  # 名前がない場合はタグを使用
         tag_points[user.tag] += user.sum_points()
 
     result = [{'tag': tag, 'points': points} for tag, points in tag_points.items()]

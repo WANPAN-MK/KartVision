@@ -1,0 +1,179 @@
+<!-- templates/edit.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>マリオカート集計結果 - 編集</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+    .team-score {
+        margin: 10px 0;
+        padding: 15px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    .tag-name {
+        flex: 1;
+        text-align: left;
+        font-weight: bold;
+    }
+
+    .points {
+        flex: 0 0 auto;
+        margin-left: 20px;
+        padding-left: 20px;
+        border-left: 2px solid #333;
+        white-space: nowrap;
+        text-align: right;
+    }
+
+    .edit-input {
+        display: none;
+        width: 80px;
+        font-size: 24px;
+        margin-left: 20px;
+        text-align: right;
+    }
+
+    .actions {
+        display: flex;
+        flex-direction: column;
+        margin-left: 20px;
+    }
+
+    .action-button {
+        margin-top: 5px;
+        padding: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+    <h1>マリオカート集計結果 - 編集ページ</h1>
+    <div id="results">
+        <!-- データはJavaScriptで動的に挿入されます -->
+    </div> 
+
+<script>
+    function fetchData() {
+        fetch('/api/data')
+            .then(response => response.json())
+            .then(newData => {
+                console.log('デバッグ: 受け取ったデータ', newData); // デバッグ用
+
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = ''; // 既存の内容をクリア
+
+                newData.forEach(item => {
+                    const scoreDiv = document.createElement('div');
+                    scoreDiv.className = 'team-score';
+                    scoreDiv.innerHTML = `
+                        <div class="tag-name">${item.tag}</div>
+                        <div class="points">${item.points}</div>
+                        <input type="number" class="edit-input" value="${item.points}">
+                        <div class="actions">
+                            <button class="action-button edit-button">編集</button>
+                            <button class="action-button save-button" style="display:none;">保存</button>
+                            <button class="action-button merge-button">統合</button>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(scoreDiv);
+                });
+
+                addEventListeners(); // イベントリスナーを追加
+            })
+            .catch(error => console.error('データ取得エラー:', error));
+    }
+
+    function addEventListeners() {
+        const editButtons = document.querySelectorAll('.edit-button');
+        const saveButtons = document.querySelectorAll('.save-button');
+        const mergeButtons = document.querySelectorAll('.merge-button');
+
+        editButtons.forEach((btn, idx) => {
+            btn.addEventListener('click', () => {
+                btn.style.display = 'none';
+                const saveBtn = btn.parentElement.querySelector('.save-button');
+                saveBtn.style.display = 'inline';
+                const scoreDiv = btn.parentElement.parentElement.querySelector('.points');
+                const inputField = btn.parentElement.parentElement.querySelector('.edit-input');
+                scoreDiv.style.display = 'none';
+                inputField.style.display = 'inline';
+            });
+        });
+
+        saveButtons.forEach((btn, idx) => {
+            btn.addEventListener('click', () => {
+                const scoreDiv = btn.parentElement.parentElement.querySelector('.points');
+                const inputField = btn.parentElement.parentElement.querySelector('.edit-input');
+                const tag = btn.parentElement.parentElement.querySelector('.tag-name').innerText;
+                const newPoints = parseInt(inputField.value);
+
+                fetch('/api/edit_points', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({tag: tag, points: newPoints})
+                }).then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        fetchData(); // データを再取得
+                    } else {
+                        alert('点数の更新エラー: ' + data.message);
+                    }
+                });
+
+                // ボタンと入力フィールドをリセット
+                btn.style.display = 'none';
+                const editBtn = btn.parentElement.querySelector('.edit-button');
+                editBtn.style.display = 'inline';
+                scoreDiv.style.display = 'block';
+                inputField.style.display = 'none';
+            });
+        });
+
+        mergeButtons.forEach((btn, idx) => {
+            btn.addEventListener('click', () => {
+                const tag = btn.parentElement.parentElement.querySelector('.tag-name').innerText;
+                const targetTag = prompt('統合先のタグを入力してください:');
+                if (targetTag) {
+                    fetch('/api/edit_points', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({tag: tag, target_tag: targetTag})
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            fetchData(); // データを再取得
+                        } else {
+                            alert('タグの統合エラー: ' + data.message);
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    // ページ読み込み時にデータを取得
+    fetchData();
+</script>
+</body>
+</html>

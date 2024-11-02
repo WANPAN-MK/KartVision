@@ -1,5 +1,5 @@
 # app.py
-from flask import render_template, Flask
+from flask import render_template, Flask, request
 import visionapi
 import threading
 import pyautogui
@@ -35,10 +35,53 @@ def history():
     dates = sorted(images_by_date.keys(), reverse=True)
     return render_template("history.html", images_by_date=images_by_date, dates=dates)
 
+@app.route("/edit")
+def edit():
+    with data_lock:
+        return render_template("edit.html", data=data)
+
 @app.route("/api/data")
 def get_data():
     with data_lock:
         return jsonify(data)
+
+@app.route("/api/edit_points", methods=["POST"])
+def edit_points():
+    tag_to_update = request.json.get("tag")
+    new_points = request.json.get("points", None)
+    target_tag = request.json.get("target_tag", None)  # タグ統合時のターゲットタグ
+
+    with all_users_lock:
+        # 編集対象のユーザーを検索
+        users_to_update = [user for user in all_users.values() if user.tag == tag_to_update]
+
+        if users_to_update:
+            if target_tag:
+                # タグの統合処理
+                for user in users_to_update:
+                    user.tag = target_tag  # タグを更新
+
+            elif new_points is not None:
+                # 点数の更新
+                total_points = sum([user.sum_points() for user in users_to_update])
+                difference = new_points - total_points
+                # 点数を均等に配分
+                per_user_adjustment = difference // len(users_to_update)
+                for user in users_to_update:
+                    if user.points:
+                        user.points[-1] += per_user_adjustment  # 最新のポイントを調整
+
+            # data を再計算
+            total_points_by_tag = analyzer.calculate_total_points_by_tag(list(all_users.values()))
+            total_points_by_tag.sort(key=lambda x: x['points'], reverse=True)
+
+            with data_lock:
+                global data
+                data = total_points_by_tag
+
+            return jsonify({"status": "success"})
+        else:
+            return jsonify({"status": "error", "message": "タグが見つかりませんでした"}), 404
 
 def run(group_num, tag_positions):
     global data, all_users
@@ -102,7 +145,7 @@ def run(group_num, tag_positions):
                 print(f"{item['tag']}: {item['points']}")
 
             time.sleep(15)
-            running = False
+            # running = False
 
 if __name__ == "__main__":
     # 対戦形式を入力
