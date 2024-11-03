@@ -1,6 +1,6 @@
 from flask import Flask
 from user import User, Team
-from typing import List
+from typing import List, Tuple
 
 
 # Teamのデータを保持するFlaskクラス
@@ -12,11 +12,16 @@ class KartFlask(Flask):
     def set_teams(self, teams: List[Team]):
         self.teams = teams
 
-    def get_teams(self) -> List[Team]:
-        return self.teams
-
-    def update(self, ranked_users: List[User]):
-        pass
+    # ToDo: 2度目で同じ名前がくるとは限らず、その処理
+    def update(self, ranking: List[Tuple[str, int]]):
+        points_len = len(self.teams[0].users[0].points)  # Userのpointsの配列の長さ
+        for name, point in ranking:
+            u = User(name)
+            users = [user for team in self.teams for user in team.users]
+            for user in users:
+                if (user == u) and (len(user.points) == points_len):
+                    user.add_point(point)
+                    break
 
     def high_score_list(self):
         spds = [team.sum_points_dict() for team in self.teams]

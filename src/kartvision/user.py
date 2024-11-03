@@ -10,6 +10,11 @@ class User:
             return f"{self.raw_name}: name={self.name}, points={self.points}"
         return f"{self.raw_name}: points={self.points}"
 
+    def __eq__(self, other):
+        if not isinstance(other, User):
+            return False
+        return self.raw_name == other.raw_name
+
     def set_name(self, name: str):
         self.name = name
 
@@ -42,12 +47,12 @@ class Team:
         }
 
 
+# ToDo: 後ろタグの動作が悪い
 def create_teams_with_tags(
     ranking: List[Tuple[str, int]], group_num: int, tag_positions=["prefix", "suffix"]
 ) -> List[Team]:
     remaining_users = []
     for r in ranking:
-        print(f"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa {r}")
         user = User(r[0])
         user.add_point(r[1])
         remaining_users.append(user)

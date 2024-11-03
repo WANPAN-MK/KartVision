@@ -140,9 +140,13 @@ def run(group_num, tag_positions):
         else:
             print("ユーザーの情報を更新します...")
             app.update(ranking)
+
+        for team in app.teams:
+            print(team)
+
         print("合計ポイント:")
         print(f"{app.high_score_list()}")
-        sleep(15)
+        sleep(5)
 
 
 if __name__ == "__main__":
