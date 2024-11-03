@@ -30,18 +30,15 @@ class Team:
     def __str__(self) -> str:
         return f"Team {self.tag}:\n" + "\n".join([str(user) for user in self.users])
 
-    def to_dict(self):
-        return {
-            "tag": self.tag,
-            "points": [user.points for user in self.users],
-        }
-
     def add_points(self, points: int):
         for user in self.users:
             user.add_points(points)
 
-    def sum_points(self):
-        return sum([user.sum_points() for user in self.users])
+    def sum_points_dict(self):
+        return {
+            "tag": self.tag,
+            "sum_points": sum([user.sum_points() for user in self.users]),
+        }
 
 
 def create_teams_with_tags(

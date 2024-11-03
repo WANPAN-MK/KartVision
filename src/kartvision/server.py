@@ -3,6 +3,7 @@ from user import Team
 from typing import List
 
 
+# Teamのデータを保持するFlaskクラス
 class KartFlask(Flask):
     def __init__(self, *args, **kwargs):
         super(KartFlask, self).__init__(*args, **kwargs)
@@ -14,5 +15,7 @@ class KartFlask(Flask):
     def get_teams(self) -> List[Team]:
         return self.teams
 
-    def to_list(self):
-        return [team.to_dict() for team in self.teams]
+    def high_score_list(self):
+        spds = [team.sum_points_dict() for team in self.teams]
+        spds.sort(key=lambda x: x["sum_points"], reverse=True)
+        return spds

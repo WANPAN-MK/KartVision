@@ -74,7 +74,7 @@
             scoreDiv.className = 'team-score';
             scoreDiv.innerHTML = `
                         <div class="tag-name">${item.tag}</div>
-                        <div class="points">${item.points}</div>
+                        <div class="points">${item.sum_points}</div>
                     `;
             resultsDiv.appendChild(scoreDiv);
           });
@@ -82,8 +82,6 @@
         .catch(error => console.error('データ取得エラー:', error));
     }
 
-    // ページ読み込み時にデータを取得
-    fetchData();
     // 3秒ごとにデータを取得
     setInterval(fetchData, 3000);
   </script>

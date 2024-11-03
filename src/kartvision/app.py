@@ -7,16 +7,10 @@ from server import KartFlask
 from flask import render_template, request, jsonify
 from pyautogui import locateOnScreen, ImageNotFoundException
 from time import sleep
-from threading import Lock, Thread
+from threading import Thread
 
 
 REGION = [1520, 204, 2125, 1596]
-
-# ToDO: global変数をなくす
-data_lock = Lock()
-data = []
-all_users_lock = Lock()
-all_users = {}
 
 screenshot_manager = Screenshot_Manager()
 
@@ -30,8 +24,9 @@ def home():
 
 @app.route("/result")
 def results():
-    with data_lock:
-        return render_template("result.html", data=data)
+    data = app.high_score_list()
+    print(data)
+    return render_template("result.html", data=data)
 
 
 @app.route("/history")
@@ -43,14 +38,14 @@ def history():
 
 @app.route("/edit")
 def edit():
-    with data_lock:
-        return render_template("edit.html", data=data)
+    data = app.high_score_list()
+    return render_template("edit.html", data=data)
 
 
 @app.route("/api/data")
 def get_data():
-    with data_lock:
-        return jsonify(data)
+    data = app.high_score_list()
+    return jsonify(data)
 
 
 # @app.route("/api/edit_points", methods=["POST"])
@@ -107,7 +102,6 @@ def edit_tag():
 
 
 def run(group_num, tag_positions):
-    global data, all_users
     # 設定
     wait_time_before_screenshot = 0.3
     flag_image = "src/kartvision/static/images/flag_trigger.png"
@@ -145,31 +139,11 @@ def run(group_num, tag_positions):
             print(team)
 
         # ユーザーデータを積累
-        with all_users_lock:
-            for team in teams:
-                for user in team.users:
-                    key = user.raw_name
-                    if key in all_users:
-                        # 既存のユーザーの場合、ポイントを積累
-                        all_users[key].points.extend(user.points)
-                    else:
-                        # 新規ユーザーの場合、ユーザーを追加
-                        all_users[key] = user
-
-        total_points_by_tag = [
-            {"tag": team.tag, "sum_points": team.sum_points()} for team in teams
-        ]
-        total_points_by_tag.sort(key=lambda x: x["sum_points"], reverse=True)
-
-        with data_lock:
-            data = total_points_by_tag
+        app.set_teams(teams)
 
         print("合計ポイント:")
-        for item in data:
-            print(f"{item['tag']}: {item['sum_points']}")
-
+        print(f"{app.high_score_list()}")
         sleep(15)
-        # running = False
 
 
 if __name__ == "__main__":
