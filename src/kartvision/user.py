@@ -1,22 +1,23 @@
-from typing import List
+from typing import List, Tuple
 
 
 class User:
     def __init__(self, raw_name: str) -> None:
         self.raw_name = raw_name
-        self.points = []
 
     def __str__(self) -> str:
         if hasattr(self, "name") and self.name:
             return f"{self.raw_name}: name={self.name}, points={self.points}"
         return f"{self.raw_name}: points={self.points}"
 
-    def set_tag_and_name(self, tag: str, name: str):
-        self.tag = tag
+    def set_name(self, name: str):
         self.name = name
 
-    def add_points(self, points: int):
-        self.points.append(points)
+    def add_point(self, point: int):
+        if not hasattr(self, "points"):
+            self.points = [point]
+        else:
+            self.points.append(point)
 
     def sum_points(self):
         return sum(self.points)
@@ -42,9 +43,15 @@ class Team:
 
 
 def create_teams_with_tags(
-    users: List[User], group_num: int, tag_positions=["prefix", "suffix"]
+    ranking: List[Tuple[str, int]], group_num: int, tag_positions=["prefix", "suffix"]
 ) -> List[Team]:
-    remaining_users = users[:]
+    remaining_users = []
+    for r in ranking:
+        print(f"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa {r}")
+        user = User(r[0])
+        user.add_point(r[1])
+        remaining_users.append(user)
+
     final_teams = []
     confirmed_users = []
 
@@ -69,13 +76,13 @@ def create_teams_with_tags(
                 key = (position, tag_candidate)
                 if key not in tag_to_users:
                     tag_to_users[key] = []
-                tag_to_users[key].append((user, tag_candidate, name_candidate))
+                tag_to_users[key].append((user, name_candidate))
 
         for (position, tag), grouped_users in tag_to_users.items():
             if len(grouped_users) >= group_num:
                 team_users = []
-                for user, tag_candidate, name_candidate in grouped_users:
-                    user.set_tag_and_name(tag_candidate, name_candidate)
+                for user, name_candidate in grouped_users:
+                    user.set_name(name_candidate)
                     team_users.append(user)
                     confirmed_users.append(user)
                 final_teams.append(Team(team_users, tag))
@@ -93,7 +100,7 @@ def create_teams_with_tags(
         if user.raw_name:
             tag = user.raw_name[0]
             name = user.raw_name[1:] if len(user.raw_name) > 1 else ""
-            user.set_tag_and_name(tag, name)
+            user.set_name(name)
             if tag in tag_to_team:
                 tag_to_team[tag].users.append(user)
             else:
@@ -101,7 +108,7 @@ def create_teams_with_tags(
                 final_teams.append(new_team)
                 tag_to_team[tag] = new_team
         else:
-            user.set_tag_and_name("", user.raw_name)
+            user.set_name(user.raw_name)
             if "" in tag_to_team:
                 tag_to_team[""].users.append(user)
             else:
@@ -110,13 +117,3 @@ def create_teams_with_tags(
                 tag_to_team[""] = new_team
 
     return final_teams
-
-
-def assign_points(ranking: List[User]):
-    points_by_position = [15, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-
-    for idx, user in enumerate(ranking):
-        if idx < len(points_by_position):
-            user.add_points(points_by_position[idx])
-        else:
-            user.add_points(0)

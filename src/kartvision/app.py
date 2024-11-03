@@ -1,7 +1,7 @@
-from visionapi import read_result_to_ranking
+from visionapi import result2ranking, NotFoundResult
 from screenshot import get_screenshot_by_date, Screenshot_Manager
 import image_editor
-from user import create_teams_with_tags, assign_points
+from user import create_teams_with_tags
 from server import KartFlask
 
 from flask import render_template, request, jsonify
@@ -103,44 +103,43 @@ def edit_tag():
 
 def run(group_num, tag_positions):
     # 設定
-    wait_time_before_screenshot = 0.3
     flag_image = "src/kartvision/static/images/flag_trigger.png"
 
-    running = True
-    while running:
+    is_init = True
+    while True:
         sleep(0.1)
         print("待機中...")
         try:
-            location = locateOnScreen(flag_image, confidence=0.8)
+            locateOnScreen(flag_image, confidence=0.8)
         except ImageNotFoundException:
             continue
 
-        if not location:
-            continue
-
         print("日本国旗が見つかりました。スクリーンショットを撮る前に待機します...")
-        sleep(wait_time_before_screenshot)
+        sleep(0.3)
         screenshot_manager.screenshot()
         screenshot_manager.clip_and_combine_screenshot(REGION)
-
         image_editor.preprocess_image()
-        ranking = read_result_to_ranking()
-        assign_points(ranking)
 
-        for user in ranking:
-            print(user)
+        try:
+            ranking = result2ranking()
+            print(ranking)
+        except NotFoundResult as e:  # 誤検知したとき
+            print(e)
+            continue
 
-        print("タグと名前を設定します...")
-        teams = create_teams_with_tags(
-            ranking, group_num=group_num, tag_positions=tag_positions
-        )
-
-        for team in teams:
-            print(team)
-
-        # ユーザーデータを積累
-        app.set_teams(teams)
-
+        if is_init:
+            print("タグと名前を設定します...")
+            teams = create_teams_with_tags(
+                ranking, group_num=group_num, tag_positions=tag_positions
+            )
+            for team in teams:
+                print(team)
+            # ユーザーデータを積累
+            app.set_teams(teams)
+            is_init = False
+        else:
+            print("ユーザーの情報を更新します...")
+            app.update(ranking)
         print("合計ポイント:")
         print(f"{app.high_score_list()}")
         sleep(15)

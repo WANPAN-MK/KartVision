@@ -1,5 +1,5 @@
 from flask import Flask
-from user import Team
+from user import User, Team
 from typing import List
 
 
@@ -14,6 +14,9 @@ class KartFlask(Flask):
 
     def get_teams(self) -> List[Team]:
         return self.teams
+
+    def update(self, ranked_users: List[User]):
+        pass
 
     def high_score_list(self):
         spds = [team.sum_points_dict() for team in self.teams]
