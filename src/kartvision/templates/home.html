@@ -1,54 +1,80 @@
 <!DOCTYPE html>
 <html lang="ja">
-
-<head>
-  <meta charset="UTF-8">
-  <title>ホーム</title>
-  <style>
-    /* 全体のスタイル */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-      /* コンテンツを中央揃え */
-    }
-
-    .content {
-      padding: 80px 10px;
-    }
-
-    /* リンクボタンのスタイル */
-    .link-button {
-      display: inline-block;
-      margin: 20px;
-      padding: 15px 30px;
-      background-color: #4CAF50;
-      color: white;
-      text-decoration: none;
-      font-size: 20px;
-      border-radius: 5px;
-    }
-
-    .link-button:hover {
-      background-color: #45a049;
-    }
-  </style>
-</head>
-
-<body>
-
-  <div class="content">
-    <h1>KartVision</h1>
-    <p>以下のオプションから選択してください。</p>
-
-    <!-- リンクボタン -->
-    <a href="{{ url_for('results') }}" class="link-button">結果</a>
-    <a href="{{ url_for('history') }}" class="link-button">履歴</a>
-    <a href="{{ url_for('edit') }}" class="link-button">編集</a>
-    <!-- 新しいリンクを追加する場合は、ここに追加 -->
-  </div>
-
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <title>KartVision - ホーム</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* 全体設定 */
+      body {
+        font-family: "Roboto", sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f8f9fa;
+        color: #343a40;
+      }
+      header {
+        background: #343a40;
+        color: #fff;
+        padding: 20px 0;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .container {
+        max-width: 960px;
+        margin: 30px auto;
+        padding: 0 20px;
+      }
+      .hero {
+        text-align: center;
+        padding: 60px 20px;
+      }
+      .hero h2 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+      .hero p {
+        font-size: 1.2em;
+        margin-bottom: 30px;
+      }
+      .btn {
+        display: inline-block;
+        margin: 10px;
+        padding: 15px 30px;
+        background-color: #28a745;
+        color: #fff;
+        text-decoration: none;
+        font-size: 1.1em;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+      }
+      .btn:hover {
+        background-color: #218838;
+      }
+      footer {
+        text-align: center;
+        padding: 20px;
+        background: #343a40;
+        color: #fff;
+        margin-top: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>KartVision</h1>
+    </header>
+    <div class="container">
+      <section class="hero">
+        <h2>マリオカート集計システム</h2>
+        <p>以下のオプションから選択してください。</p>
+        <a href="{{ url_for('results') }}" class="btn">結果</a>
+        <a href="{{ url_for('history') }}" class="btn">履歴</a>
+        <a href="{{ url_for('edit') }}" class="btn">編集</a>
+      </section>
+    </div>
+  </body>
 </html>

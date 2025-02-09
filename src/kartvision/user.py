@@ -1,31 +1,24 @@
+# user.py
 from typing import List, Tuple
+import re
 
 
 class User:
-    def __init__(self, raw_name: str) -> None:
+    def __init__(self, raw_name: str):
         self.raw_name = raw_name
+        self.points = []
 
-    def __str__(self) -> str:
-        if hasattr(self, "name") and self.name:
-            return f"{self.raw_name}: name={self.name}, points={self.points}"
-        return f"{self.raw_name}: points={self.points}"
+    def add_point(self, point: int):
+        self.points.append(point)
 
-    def __eq__(self, other):
-        if not isinstance(other, User):
-            return False
-        return self.raw_name == other.raw_name
+    def sum_points(self):
+        return sum(self.points)
 
     def set_name(self, name: str):
         self.name = name
 
-    def add_point(self, point: int):
-        if not hasattr(self, "points"):
-            self.points = [point]
-        else:
-            self.points.append(point)
-
-    def sum_points(self):
-        return sum(self.points)
+    def __str__(self) -> str:
+        return f"{self.raw_name}: points={self.points}"
 
 
 class Team:
@@ -33,92 +26,94 @@ class Team:
         self.users = users
         self.tag = tag
 
-    def __str__(self) -> str:
-        return f"Team {self.tag}:\n" + "\n".join([str(user) for user in self.users])
-
-    def add_points(self, points: int):
-        for user in self.users:
-            user.add_points(points)
-
     def sum_points_dict(self):
         return {
             "tag": self.tag,
-            "sum_points": sum([user.sum_points() for user in self.users]),
+            "sum_points": sum(user.sum_points() for user in self.users),
         }
 
+    def __str__(self):
+        return f"Team {self.tag}: " + ", ".join(str(u) for u in self.users)
 
-# ToDo: 後ろタグの動作が悪い
+
 def create_teams_with_tags(
-    ranking: List[Tuple[str, int]], group_num: int, tag_positions=["prefix", "suffix"]
+    ranking: List[Tuple[str, int]],
+    group_num: int = 3,
+    tag_positions: List[str] = ["prefix", "suffix"],
 ) -> List[Team]:
-    remaining_users = []
-    for r in ranking:
-        user = User(r[0])
-        user.add_point(r[1])
-        remaining_users.append(user)
+    """
+    初回OCR時にだけ使う「前/後タグを解析してまとめる」ロジック
+    ranking: [("LA Mookie",15),("LA 50",5), ...]
+    group_num: 必要人数 (2,3,4,6 など)
+    tag_positions: ["prefix"] or ["prefix","suffix"] など
+    """
+    # 1) Userオブジェクト化
+    all_users = []
+    for raw_name, point in ranking:
+        user = User(raw_name)
+        user.add_point(point)
+        all_users.append(user)
 
-    final_teams = []
-    confirmed_users = []
+    final_teams: List[Team] = []
+    remaining_users = all_users[:]
 
+    # 最大10文字→1文字まで順に試す
     for tag_len in range(10, 0, -1):
-        tag_to_users = {}
-
         for position in tag_positions:
+            grouping_map = {}
+
             for user in remaining_users:
-                raw_name_length = len(user.raw_name)
-                if raw_name_length < tag_len:
+                rn = user.raw_name
+                if len(rn) < tag_len:
                     continue
 
                 if position == "prefix":
-                    tag_candidate = user.raw_name[:tag_len]
-                    name_candidate = user.raw_name[tag_len:]
+                    candidate = rn[:tag_len].strip()
+                    rest = rn[tag_len:].strip()
                 elif position == "suffix":
-                    tag_candidate = user.raw_name[-tag_len:]
-                    name_candidate = user.raw_name[:-tag_len]
+                    suffix_candidate = rn[-tag_len:]
+                    rest = rn[:-tag_len].rstrip()
+                    # /s を末尾に付ける例など
+                    if suffix_candidate.endswith("/s"):
+                        candidate = "/s"
+                        rest = rn[:-2].rstrip()
+                    else:
+                        candidate = re.sub(r"^[_\s]+", "", suffix_candidate)
+                    candidate = candidate.strip()
                 else:
                     continue
 
-                key = (position, tag_candidate)
-                if key not in tag_to_users:
-                    tag_to_users[key] = []
-                tag_to_users[key].append((user, name_candidate))
+                if not candidate:
+                    continue
 
-        for (position, tag), grouped_users in tag_to_users.items():
-            if len(grouped_users) >= group_num:
-                team_users = []
-                for user, name_candidate in grouped_users:
-                    user.set_name(name_candidate)
-                    team_users.append(user)
-                    confirmed_users.append(user)
-                final_teams.append(Team(team_users, tag))
+                if candidate not in grouping_map:
+                    grouping_map[candidate] = []
+                grouping_map[candidate].append((user, rest))
 
-        remaining_users = [
-            user for user in remaining_users if user not in confirmed_users
-        ]
+            # group_num 以上まとめてチーム化
+            to_remove = []
+            for tag_candidate, user_info_list in grouping_map.items():
+                if len(user_info_list) >= group_num:
+                    team_users = []
+                    for u, name_remaining in user_info_list:
+                        u.set_name(name_remaining)
+                        team_users.append(u)
+                        to_remove.append(u)
+                    new_team = Team(team_users, tag_candidate)
+                    final_teams.append(new_team)
 
+            # チーム化したユーザーは残りから除外
+            remaining_users = [u for u in remaining_users if u not in to_remove]
+            if not remaining_users:
+                break
         if not remaining_users:
             break
 
-    tag_to_team = {team.tag: team for team in final_teams}
-
-    for user in remaining_users:
-        if user.raw_name:
-            tag = user.raw_name[0]
-            name = user.raw_name[1:] if len(user.raw_name) > 1 else ""
-            user.set_name(name)
-            if tag in tag_to_team:
-                tag_to_team[tag].users.append(user)
-            else:
-                new_team = Team([user], tag)
-                final_teams.append(new_team)
-                tag_to_team[tag] = new_team
-        else:
-            user.set_name(user.raw_name)
-            if "" in tag_to_team:
-                tag_to_team[""].users.append(user)
-            else:
-                new_team = Team([user], "")
-                final_teams.append(new_team)
-                tag_to_team[""] = new_team
+    # 残ったユーザーは単独チーム扱い
+    while remaining_users:
+        user = remaining_users.pop()
+        fallback_tag = user.raw_name.split()[0]
+        new_team = Team([user], fallback_tag)
+        final_teams.append(new_team)
 
     return final_teams

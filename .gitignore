@@ -15,3 +15,7 @@ wheels/
 # images
 history
 cashe
+src/kartvision/static/images/region.png
+
+# json
+config.json
