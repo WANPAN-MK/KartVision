@@ -24,16 +24,15 @@ class Screenshot_Manager:
         screenshot.save(self.screenshot_filename)
         print(f"スクリーンショットを保存しました: {self.screenshot_filename}")
 
-    def clip_and_combine_screenshot(self, region: List[List[int]]):
+    def clip_and_combine_screenshot(self, region: List[int]):
         output_filename = "src/kartvision/static/cashe/combined_image.png"
         regions = get_regions(region)
-        # 複数の座標でクロッピングし、それらを縦に結合
+        # 複数の領域をクロッピングし、縦に結合する
         with Image.open(self.screenshot_filename) as img:
-            cropped_images = [img.crop(region) for region in regions]
+            cropped_images = [img.crop(r) for r in regions]
             total_height = sum(cropped.height for cropped in cropped_images)
             max_width = max(cropped.width for cropped in cropped_images)
             combined_image = Image.new("RGB", (max_width, total_height))
-            # 各画像を結合
             y_offset = 0
             for cropped in cropped_images:
                 combined_image.paste(cropped, (0, y_offset))
@@ -61,10 +60,9 @@ def get_screenshot_by_date() -> Dict[str, List[str]]:
     )
     images_by_date = {}
     for image in images:
-        # ファイル名から日付を抽出（例：screenshot_YYYYMMDD_HHMMSS.png）
         filename = image.split("/")[-1]
         date_time_str = filename.replace("screenshot_", "").replace(".png", "")
-        date_part = date_time_str.split("_")[0]  # 'YYYYMMDD'
+        date_part = date_time_str.split("_")[0]
         if date_part not in images_by_date:
             images_by_date[date_part] = []
         images_by_date[date_part].append(image)
@@ -73,7 +71,6 @@ def get_screenshot_by_date() -> Dict[str, List[str]]:
 
 def get_regions(region: List[int]) -> List[List[int]]:
     result_ratio = [10, 1]
-
     region_len = region[3] - region[1]
     num = result_ratio[0] * 12 + result_ratio[1] * 11
     unit_len = region_len / num

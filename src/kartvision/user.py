@@ -1,4 +1,3 @@
-# user.py
 from typing import List, Tuple
 import re
 
@@ -41,13 +40,6 @@ def create_teams_with_tags(
     group_num: int = 3,
     tag_positions: List[str] = ["prefix", "suffix"],
 ) -> List[Team]:
-    """
-    初回OCR時にだけ使う「前/後タグを解析してまとめる」ロジック
-    ranking: [("LA Mookie",15),("LA 50",5), ...]
-    group_num: 必要人数 (2,3,4,6 など)
-    tag_positions: ["prefix"] or ["prefix","suffix"] など
-    """
-    # 1) Userオブジェクト化
     all_users = []
     for raw_name, point in ranking:
         user = User(raw_name)
@@ -57,23 +49,19 @@ def create_teams_with_tags(
     final_teams: List[Team] = []
     remaining_users = all_users[:]
 
-    # 最大10文字→1文字まで順に試す
     for tag_len in range(10, 0, -1):
         for position in tag_positions:
             grouping_map = {}
-
             for user in remaining_users:
                 rn = user.raw_name
                 if len(rn) < tag_len:
                     continue
-
                 if position == "prefix":
                     candidate = rn[:tag_len].strip()
                     rest = rn[tag_len:].strip()
                 elif position == "suffix":
                     suffix_candidate = rn[-tag_len:]
                     rest = rn[:-tag_len].rstrip()
-                    # /s を末尾に付ける例など
                     if suffix_candidate.endswith("/s"):
                         candidate = "/s"
                         rest = rn[:-2].rstrip()
@@ -82,15 +70,11 @@ def create_teams_with_tags(
                     candidate = candidate.strip()
                 else:
                     continue
-
                 if not candidate:
                     continue
-
                 if candidate not in grouping_map:
                     grouping_map[candidate] = []
                 grouping_map[candidate].append((user, rest))
-
-            # group_num 以上まとめてチーム化
             to_remove = []
             for tag_candidate, user_info_list in grouping_map.items():
                 if len(user_info_list) >= group_num:
@@ -101,15 +85,12 @@ def create_teams_with_tags(
                         to_remove.append(u)
                     new_team = Team(team_users, tag_candidate)
                     final_teams.append(new_team)
-
-            # チーム化したユーザーは残りから除外
             remaining_users = [u for u in remaining_users if u not in to_remove]
             if not remaining_users:
                 break
         if not remaining_users:
             break
 
-    # 残ったユーザーは単独チーム扱い
     while remaining_users:
         user = remaining_users.pop()
         fallback_tag = user.raw_name.split()[0]
