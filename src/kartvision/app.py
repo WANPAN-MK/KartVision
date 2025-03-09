@@ -18,7 +18,7 @@ def load_region():
     """
     config.json があれば REGION を読み込み、なければデフォルトの値を返す
     """
-    default_region = [1520, 204, 2125, 1596]
+    default_region = [1520, 206, 2125, 1596]
     config_path = "config.json"
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as f:
@@ -83,10 +83,7 @@ def edit_tag():
             team.tag = new_tag
             print(f"タグ更新: {current_tag} -> {new_tag}")
             return jsonify({"status": "success"})
-    return (
-        jsonify({"status": "error", "message": "指定されたタグが見つかりませんでした"}),
-        404,
-    )
+    return jsonify({"status": "error", "message": "指定されたタグが見つかりませんでした"}), 404
 
 
 @app.route("/api/edit_points", methods=["POST"])
@@ -111,15 +108,7 @@ def edit_points():
             elif team.tag == target_tag:
                 dest_team = team
         if not source_team or not dest_team:
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "message": "指定されたタグが見つかりませんでした",
-                    }
-                ),
-                404,
-            )
+            return jsonify({"status": "error", "message": "指定されたタグが見つかりませんでした"}), 404
 
         dest_team.users.extend(source_team.users)
         app.teams = [t for t in app.teams if t.tag != tag]
@@ -143,24 +132,19 @@ def edit_points():
                             user.points[-1] += 1
                     print(f"点数更新: {tag} の合計点 {current_total} -> {new_points}")
                     return jsonify({"status": "success"})
-        return (
-            jsonify(
-                {"status": "error", "message": "指定されたタグが見つかりませんでした"}
-            ),
-            404,
-        )
+        return jsonify({"status": "error", "message": "指定されたタグが見つかりませんでした"}), 404
     else:
         return jsonify({"status": "error", "message": "更新内容が不正です"}), 400
 
 
 # --- フラグ検出 & OCR 更新ループ ---
-def run_flag_detection(group_num):
+def run_flag_detection(group_num, tag_positions):
     """
     別スレッド上で、フラグ画像検出 → スクリーンショット取得 → OCR → チーム更新 を繰り返す
+    tag_positions: 集計に使うタグの種類（例: ["prefix"] または ["prefix", "suffix"]）
     """
     flag_image = "src/kartvision/static/images/flag_trigger.png"
     group_num_int = int(group_num)
-    positions = ["prefix", "suffix"]
     is_init = True
 
     while True:
@@ -185,9 +169,7 @@ def run_flag_detection(group_num):
 
         if is_init:
             print("初回: チームを設定中...")
-            teams = create_teams_with_tags(
-                ranking, group_num=group_num_int, tag_positions=positions
-            )
+            teams = create_teams_with_tags(ranking, group_num=group_num_int, tag_positions=tag_positions)
             app.set_teams(teams)
             is_init = False
         else:
@@ -199,19 +181,28 @@ def run_flag_detection(group_num):
         print("合計ポイント:")
         for item in app.high_score_list():
             print(f"{item['tag']} - {item['sum_points']}")
-        sleep(120)
+        sleep(20)
 
 
 # --- エントリーポイント ---
 if __name__ == "__main__":
     group_num = None
     while group_num not in ["2", "3", "4", "6"]:
-        group_num = input(
-            "対戦形式はどれですか？ (2v2 -> 2, 3v3 -> 3, 4v4 -> 4, 6v6 -> 6): "
-        )
+        group_num = input("対戦形式はどれですか？ (2v2 -> 2, 3v3 -> 3, 4v4 -> 4, 6v6 -> 6): ")
         if group_num not in ["2", "3", "4", "6"]:
             print("無効な入力です。再入力してください。")
-    flag_thread = Thread(target=run_flag_detection, args=(group_num,))
+    # タグの集計方法を選択
+    let_tag_mode = None
+    while let_tag_mode not in ["1", "2"]:
+        let_tag_mode = input("タグの集計方法を指定してください： 1) 前タグのみ, 2) 前後タグ: ")
+        if let_tag_mode not in ["1", "2"]:
+            print("無効な入力です。")
+    if let_tag_mode == "1":
+        tag_positions = ["prefix"]
+    else:
+        tag_positions = ["prefix", "suffix"]
+
+    flag_thread = Thread(target=run_flag_detection, args=(group_num, tag_positions))
     flag_thread.daemon = True
     flag_thread.start()
     app.run(port=8888)

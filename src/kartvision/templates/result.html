@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>マリオカート集計結果</title>
     <style>
-      /* CSS変数でサイズを管理 */
       :root {
-        --normal-scale: 0.48; /* 通常時のサイズ（右上に小さく表示） */
-        --highlight-scale: 1; /* ハイライト時のサイズ（中央に大きく表示） */
+        --highlight-scale: 1; /* ハイライト時の拡大率 */
+        --highlight-left: 25%; /* ハイライト時の左位置（50%で中央、40%で左寄り） */
       }
       body {
         font-family: Arial, sans-serif;
@@ -17,26 +16,25 @@
         margin: 0;
         padding: 10px;
       }
-      /* 通常時は右上に固定表示。変形の原点は右上に設定 */
+      /* 通常時は右上に固定表示 */
       #results {
         position: fixed;
         top: 10px;
         right: 10px;
-        transform: scale(var(--normal-scale));
+        transform: scale(var(--normal-scale, 0.48));
         transform-origin: top right;
-        /* top, right, left, transform をスムーズに変化 */
         transition: top 0.8s ease, right 0.8s ease, left 0.8s ease,
           transform 0.8s ease;
         z-index: 100;
       }
-      /* highlight クラス付与時：中央に表示し、サイズも変更 */
+      /* ハイライト状態：ここで位置を調整。--highlight-left の値を変更すると水平位置が変わります */
       #results.highlight {
         top: 50%;
-        left: 50%;
+        left: var(--highlight-left);
         right: auto;
         transform: translate(-50%, -50%) scale(var(--highlight-scale));
       }
-      /* 各スコアカードのスタイル */
+      /* 各スコアカード */
       .team-score {
         margin: 10px 0;
         padding: 15px;
@@ -73,17 +71,14 @@
       </div>
       {% endfor %}
     </div>
-
     <script>
       // 前回のデータを記憶するための変数（初回は null）
       let lastData = null;
-
-      // データ取得と更新処理
       function fetchData() {
         fetch("/api/data")
           .then((response) => response.json())
           .then((newData) => {
-            // 前回のデータと比較して変化があればハイライト状態をトリガー
+            // 前回のデータと異なればハイライト状態に
             if (
               lastData &&
               JSON.stringify(lastData) !== JSON.stringify(newData)
@@ -95,8 +90,6 @@
           })
           .catch((error) => console.error("データ取得エラー:", error));
       }
-
-      // #results 内のチームカードを最新データで更新
       function updateResults(data) {
         const resultsDiv = document.getElementById("results");
         resultsDiv.innerHTML = ""; // 一旦クリア
@@ -110,18 +103,15 @@
           resultsDiv.appendChild(scoreDiv);
         });
       }
-
-      // ハイライト状態をトリガーする関数
       function triggerHighlight() {
         const resultsDiv = document.getElementById("results");
         resultsDiv.classList.add("highlight");
-        // ハイライト状態を3秒後に解除して元の右上の位置に戻す
+        // ハイライト状態を3秒後に解除して元の位置に戻す
         setTimeout(() => {
           resultsDiv.classList.remove("highlight");
         }, 3000);
       }
-
-      // 初回データ取得と定期更新（3秒ごと）
+      // 初回取得と定期更新（3秒ごと）
       fetchData();
       setInterval(fetchData, 3000);
     </script>
