@@ -181,7 +181,7 @@ def run_flag_detection(group_num, tag_positions):
         print("合計ポイント:")
         for item in app.high_score_list():
             print(f"{item['tag']} - {item['sum_points']}")
-        sleep(20)
+        sleep(120)
 
 
 # --- エントリーポイント ---

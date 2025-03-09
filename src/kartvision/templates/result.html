@@ -4,63 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>マリオカート集計結果</title>
-    <style>
-      :root {
-        --highlight-scale: 1; /* ハイライト時の拡大率 */
-        --highlight-left: 25%; /* ハイライト時の左位置（50%で中央、40%で左寄り） */
-      }
-      body {
-        font-family: Arial, sans-serif;
-        background-color: transparent;
-        color: #fffcfc;
-        margin: 0;
-        padding: 10px;
-      }
-      /* 通常時は右上に固定表示 */
-      #results {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        transform: scale(var(--normal-scale, 0.48));
-        transform-origin: top right;
-        transition: top 0.8s ease, right 0.8s ease, left 0.8s ease,
-          transform 0.8s ease;
-        z-index: 100;
-      }
-      /* ハイライト状態：ここで位置を調整。--highlight-left の値を変更すると水平位置が変わります */
-      #results.highlight {
-        top: 50%;
-        left: var(--highlight-left);
-        right: auto;
-        transform: translate(-50%, -50%) scale(var(--highlight-scale));
-      }
-      /* 各スコアカード */
-      .team-score {
-        margin: 10px 0;
-        padding: 15px;
-        background-color: rgba(0, 0, 0, 0.78);
-        border: 0.5px solid #ddd;
-        border-radius: 10px;
-        font-size: 70px;
-        display: flex;
-        align-items: center;
-        box-sizing: border-box;
-        transition: transform 0.5s ease, opacity 0.5s ease;
-      }
-      .tag-name {
-        flex: 1;
-        text-align: center;
-        font-weight: bold;
-      }
-      .points {
-        flex: 0 0 auto;
-        margin-left: 20px;
-        padding-left: 20px;
-        border-left: 2px solid rgba(255, 255, 255, 0.5);
-        white-space: nowrap;
-        text-align: right;
-      }
-    </style>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/result.css') }}"
+    />
+    <script
+      src="{{ url_for('static', filename='js/result.js') }}"
+      defer
+    ></script>
   </head>
   <body>
     <div id="results">
@@ -71,49 +22,5 @@
       </div>
       {% endfor %}
     </div>
-    <script>
-      // 前回のデータを記憶するための変数（初回は null）
-      let lastData = null;
-      function fetchData() {
-        fetch("/api/data")
-          .then((response) => response.json())
-          .then((newData) => {
-            // 前回のデータと異なればハイライト状態に
-            if (
-              lastData &&
-              JSON.stringify(lastData) !== JSON.stringify(newData)
-            ) {
-              triggerHighlight();
-            }
-            lastData = newData;
-            updateResults(newData);
-          })
-          .catch((error) => console.error("データ取得エラー:", error));
-      }
-      function updateResults(data) {
-        const resultsDiv = document.getElementById("results");
-        resultsDiv.innerHTML = ""; // 一旦クリア
-        data.forEach((item) => {
-          const scoreDiv = document.createElement("div");
-          scoreDiv.className = "team-score";
-          scoreDiv.innerHTML = `
-            <div class="tag-name">${item.tag}</div>
-            <div class="points">${item.sum_points}</div>
-          `;
-          resultsDiv.appendChild(scoreDiv);
-        });
-      }
-      function triggerHighlight() {
-        const resultsDiv = document.getElementById("results");
-        resultsDiv.classList.add("highlight");
-        // ハイライト状態を3秒後に解除して元の位置に戻す
-        setTimeout(() => {
-          resultsDiv.classList.remove("highlight");
-        }, 3000);
-      }
-      // 初回取得と定期更新（3秒ごと）
-      fetchData();
-      setInterval(fetchData, 3000);
-    </script>
   </body>
 </html>

@@ -1,0 +1,169 @@
+/* 全体設定 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Roboto", sans-serif;
+    background: #f8f9fa;
+    color: #343a40;
+  }
+  header {
+    background: #343a40;
+    color: #fff;
+    padding: 15px;
+    text-align: center;
+    position: relative;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.5em;
+  }
+  /* ホームに戻るボタン */
+  .home-button {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    background: #007bff;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+  }
+  .container {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .instructions {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 0.9em;
+    line-height: 1.6;
+  }
+  .instructions p {
+    margin: 0 0 10px 0;
+  }
+  .team-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background: #e9ecef;
+    cursor: move;
+    transition: background 0.3s;
+  }
+  .team-card.drag-over {
+    background: #cce5ff;
+  }
+  .team-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .team-tag {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+  }
+  .team-points {
+    font-size: 1.5em;
+    color: #28a745;
+  }
+  /* 絶対編集用入力欄 */
+  .edit-input {
+    display: none;
+    width: 80px;
+    font-size: 1.5em;
+    padding: 5px;
+    text-align: right;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+  }
+  /* タグ編集用入力欄 */
+  .edit-tag-input {
+    display: none;
+    width: 150px;
+    font-size: 1.2em;
+    padding: 3px;
+    text-align: center;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    margin-top: 5px;
+  }
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-left: 15px;
+  }
+  .action-button {
+    padding: 5px 10px;
+    font-size: 0.9em;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    transition: background 0.3s;
+  }
+  .edit-button {
+    background-color: #ffc107;
+    color: #212529;
+  }
+  .edit-button:hover {
+    background-color: #e0a800;
+  }
+  .save-button {
+    background-color: #28a745;
+    color: #fff;
+  }
+  .save-button:hover {
+    background-color: #218838;
+  }
+  .tag-edit-button {
+    background-color: #17a2b8;
+    color: #fff;
+  }
+  .tag-edit-button:hover {
+    background-color: #138496;
+  }
+  .tag-save-button {
+    background-color: #6f42c1;
+    color: #fff;
+  }
+  .tag-save-button:hover {
+    background-color: #5a32a3;
+  }
+  .relative-input {
+    display: none;
+    width: 50px;
+    font-size: 1em;
+    padding: 3px;
+    text-align: right;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+  }
+  .relative-button {
+    background-color: #17a2b8;
+    color: #fff;
+  }
+  .relative-button:hover {
+    background-color: #138496;
+  }
+  @media (max-width: 600px) {
+    .team-card {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .actions {
+      flex-direction: row;
+    }
+  }

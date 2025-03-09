@@ -4,113 +4,13 @@
     <meta charset="UTF-8" />
     <title>KartVision - 履歴</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
       rel="stylesheet"
+      href="{{ url_for('static', filename='css/history.css') }}"
     />
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: "Roboto", sans-serif;
-        background: #f8f9fa;
-        color: #343a40;
-      }
-      header {
-        background: #343a40;
-        color: #fff;
-        padding: 15px 0;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      .container {
-        max-width: 960px;
-        margin: 30px auto;
-        padding: 0 20px;
-      }
-      h1 {
-        text-align: center;
-        margin-top: 20px;
-      }
-      .back-button {
-        display: inline-block;
-        margin: 10px 0 20px 0;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background-color 0.3s ease;
-      }
-      .back-button:hover {
-        background-color: #0056b3;
-      }
-      .date-item {
-        background: #fff;
-        padding: 15px;
-        margin-bottom: 10px;
-        border-radius: 8px;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        transition: transform 0.2s ease;
-      }
-      .date-item:hover {
-        transform: translateY(-3px);
-      }
-      .date-icon {
-        width: 40px;
-        height: 40px;
-        background: #007bff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-size: 1.5em;
-        margin-right: 15px;
-        flex-shrink: 0;
-      }
-      .date-text {
-        font-size: 1.2em;
-      }
-      .image-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 15px;
-        margin-top: 15px;
-      }
-      .image-item {
-        background: #fff;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-      }
-      .image-item:hover {
-        transform: translateY(-5px);
-      }
-      .image-item img {
-        width: 100%;
-        display: block;
-      }
-      .timestamp {
-        padding: 10px;
-        font-size: 0.9em;
-        color: #666;
-        text-align: center;
-        background: #f1f1f1;
-      }
-      .hidden {
-        display: none;
-      }
-    </style>
-    <script>
-      function toggleImages(date) {
-        var imagesDiv = document.getElementById("images-" + date);
-        imagesDiv.classList.toggle("hidden");
-      }
-    </script>
+    <script
+      src="{{ url_for('static', filename='js/history.js') }}"
+      defer
+    ></script>
   </head>
   <body>
     <header>
@@ -118,44 +18,35 @@
     </header>
     <div class="container">
       <a href="{{ url_for('home') }}" class="back-button">ホームに戻る</a>
-      {% for date in dates %}
-      <div class="date-item" onclick="toggleImages('{{ date }}')">
-        <div class="date-icon">📅</div>
-        <div class="date-text">
-          {{ date[:4] }}年{{ date[4:6]|int }}月{{ date[6:8]|int }}日
-        </div>
-      </div>
-      <div id="images-{{ date }}" class="hidden">
-        <div class="image-grid">
-          {% for image in images_by_date[date] %}
-          <div class="image-item">
-            <a href="{{ url_for('static', filename=image) }}" target="_blank">
-              <img
-                src="{{ url_for('static', filename=image) }}"
-                alt="Screenshot"
-              />
-            </a>
-            <div class="timestamp">
-              {{ image.split('_')[2].replace('.png', '')[:2] }}時{{
-              image.split('_')[2].replace('.png','')[2:4] }}分{{
-              image.split('_')[2].replace('.png','')[4:6] }}秒
-            </div>
+      <div class="date-list">
+        {% for date in dates %}
+        <div class="date-item" onclick="toggleImages('{{ date }}')">
+          <div class="date-icon">📅</div>
+          <div class="date-text">
+            {{ date[:4] }}年{{ date[4:6]|int }}月{{ date[6:8]|int }}日
           </div>
-          {% endfor %}
         </div>
+        <div id="images-{{ date }}" class="hidden">
+          <div class="image-grid">
+            {% for image in images_by_date[date] %}
+            <div class="image-item">
+              <a href="{{ url_for('static', filename=image) }}" target="_blank">
+                <img
+                  src="{{ url_for('static', filename=image) }}"
+                  alt="Screenshot"
+                />
+              </a>
+              <div class="timestamp">
+                {{ image.split('_')[2].replace('.png', '')[:2] }}時{{
+                image.split('_')[2].replace('.png','')[2:4] }}分{{
+                image.split('_')[2].replace('.png','')[4:6] }}秒
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
-    <footer
-      style="
-        text-align: center;
-        padding: 20px;
-        background: #343a40;
-        color: #fff;
-        margin-top: 30px;
-      "
-    >
-      &copy; 2025 KartVision
-    </footer>
   </body>
 </html>

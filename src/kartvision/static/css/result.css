@@ -1,0 +1,59 @@
+:root {
+    --normal-scale: 0.48;
+    --highlight-scale: 1;
+    --highlight-left: 25%; /* 50%で中央、値を下げると左寄りに調整 */
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: transparent;
+    color: #fffcfc;
+    margin: 0;
+    padding: 10px;
+  }
+  
+  #results {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    transform: scale(var(--normal-scale));
+    transform-origin: top right;
+    transition: top 0.8s ease, right 0.8s ease, left 0.8s ease, transform 0.8s ease;
+    z-index: 100;
+  }
+  
+  #results.highlight {
+    top: 50%;
+    left: var(--highlight-left);
+    right: auto;
+    transform: translate(-50%, -50%) scale(var(--highlight-scale));
+  }
+  
+  .team-score {
+    margin: 10px 0;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.78);
+    border: 0.5px solid #ddd;
+    border-radius: 10px;
+    font-size: 70px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+  }
+  
+  .tag-name {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  .points {
+    flex: 0 0 auto;
+    margin-left: 20px;
+    padding-left: 20px;
+    border-left: 2px solid rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    text-align: right;
+  }
+  
